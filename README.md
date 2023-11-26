@@ -1,2 +1,2 @@
 # catorganizer
-Organize mom's file real fast
+Organize mom's files real fast
