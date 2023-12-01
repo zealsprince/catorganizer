@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../settings/settings_view.dart';
-import 'category.dart';
-import '../tag/tag.dart';
+import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/views/document/document_list_view.dart';
 
-import '../document/document.dart';
-import '../document/document_details_view.dart';
-
-/// Displays a list of Documents.
+/// Displays a list of categories.
 class CategoryListView extends StatelessWidget {
+  final List<Category> categories;
   const CategoryListView({super.key, required this.categories});
 
   static const routeName = '/';
-
-  final List<Category> categories;
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +18,19 @@ class CategoryListView extends StatelessWidget {
         title: const Text('Categories'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bookmark),
-            onPressed: () {
-              print(categories.length);
-            },
-          ),
+              icon: const Icon(Icons.add),
+              onPressed: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => const AlertDialog(
+                      title:
+                          Text("This will open an OS file selection dialog")))),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               // Navigate to the settings page. If the user leaves and returns
               // to the app after it has been killed while running in the
               // background, the navigation stack is restored.
-              Navigator.restorablePushNamed(context, SettingsView.routeName);
+              Navigator.pushNamed(context, SettingsView.routeName);
             },
           ),
         ],
@@ -52,19 +49,23 @@ class CategoryListView extends StatelessWidget {
         restorationId: 'CategoryListView',
         itemCount: categories.length,
         itemBuilder: (BuildContext context, int index) {
-          final item = categories[index];
+          final category = categories[index];
 
           return ListTile(
-              title: Text(item.title),
-              leading: item.icon,
+              title: Text(category.title),
+              leading: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                category.icon,
+                Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Icon(Icons.circle, size: 12, color: category.color)),
+              ]),
+              splashColor: category.color,
               onTap: () {
                 // Navigate to the details page. If the user leaves and returns to
                 // the app after it has been killed while running in the
                 // background, the navigation stack is restored.
-                Navigator.restorablePushNamed(
-                  context,
-                  DocumentDetailsView.routeName,
-                );
+                Navigator.pushNamed(context, DocumentListView.routeName,
+                    arguments: category.documents);
               });
         },
       ),

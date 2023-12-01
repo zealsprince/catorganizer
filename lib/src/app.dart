@@ -1,14 +1,15 @@
-import 'package:catorganizer/src/document/document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-// import 'package:pulsator/pulsator.dart';
+import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/classes/document.dart';
 
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
-import 'category/category.dart';
-import 'category/category_list_view.dart';
-import 'document/document_details_view.dart';
+import 'package:catorganizer/src/views/settings/settings_controller.dart';
+import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/views/category/category_list_view.dart';
+import 'package:catorganizer/src/views/category/category_detail_view.dart';
+import 'package:catorganizer/src/views/document/document_list_view.dart';
+import 'package:catorganizer/src/views/document/document_detail_view.dart';
 
 /// The Widget that configures your application.
 class Catorganizer extends StatelessWidget {
@@ -32,7 +33,7 @@ class Catorganizer extends StatelessWidget {
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
           // background.
-          restorationScopeId: 'app',
+          restorationScopeId: 'categorizer',
 
           // Provide the generated AppLocalizations to the MaterialApp. This
           // allows descendant Widgets to display the correct translations
@@ -47,13 +48,7 @@ class Catorganizer extends StatelessWidget {
             Locale('en', ''),
           ],
 
-          // // Use AppLocalizations to configure the correct application title
-          // // depending on the user's locale.
-          // //
-          // // The appTitle is defined in .arb files found in the localization
-          // // directory.
-          // onGenerateTitle: (BuildContext context) =>
-          //     AppLocalizations.of(context)!.appTitle,
+          title: "Categorizer",
 
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
@@ -63,7 +58,7 @@ class Catorganizer extends StatelessWidget {
           themeMode: settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
-          // Flutter web url navigation and deep linking.
+          // Flutter web URL navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,
@@ -71,9 +66,18 @@ class Catorganizer extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case DocumentDetailsView.routeName:
-                    return const DocumentDetailsView();
-                  case CategoryListView.routeName:
+
+                  case CategoryDetailView.routeName:
+                    return CategoryListView(categories: categories);
+
+                  case DocumentListView.routeName:
+                    return DocumentListView(
+                        documents: routeSettings.arguments as List<Document>);
+
+                  case DocumentDetailView.routeName:
+                    return DocumentDetailView(
+                        document: routeSettings.arguments as Document);
+
                   default:
                     return CategoryListView(
                       categories: categories,

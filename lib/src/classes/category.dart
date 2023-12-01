@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:catorganizer/src/document/document.dart';
+import 'package:catorganizer/src/classes/document.dart';
 
 /// A placeholder class that represents an entity or model.
 class Category {

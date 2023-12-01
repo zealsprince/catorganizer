@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
 /// Displays detailed information about a Document.
-class DocumentDetailsView extends StatelessWidget {
-  const DocumentDetailsView({super.key});
+class CategoryDetailView extends StatelessWidget {
+  const CategoryDetailView({super.key});
 
-  static const routeName = '/document';
+  static const routeName = '/category';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Item Details'),
+        title: const Text('Category'),
       ),
       body: const Center(
-        child: Text('More Information Here'),
+        child: Text('Category options here'),
       ),
     );
   }

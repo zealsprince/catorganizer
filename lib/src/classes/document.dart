@@ -1,5 +1,4 @@
-import '../category/category.dart';
-import '../tag/tag.dart';
+import 'package:catorganizer/src/classes/tag.dart';
 
 /// A placeholder class that represents an entity or model.
 class Document {
