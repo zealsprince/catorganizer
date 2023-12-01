@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Displays detailed information about a SampleItem.
-class SampleItemDetailsView extends StatelessWidget {
-  const SampleItemDetailsView({super.key});
+/// Displays detailed information about a Document.
+class DocumentDetailsView extends StatelessWidget {
+  const DocumentDetailsView({super.key});
 
-  static const routeName = '/sample_item';
+  static const routeName = '/document';
 
   @override
   Widget build(BuildContext context) {

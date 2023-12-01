@@ -1,19 +1,22 @@
+import 'package:catorganizer/src/document/document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
+// import 'package:pulsator/pulsator.dart';
+
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'category/category.dart';
+import 'category/category_list_view.dart';
+import 'document/document_details_view.dart';
 
 /// The Widget that configures your application.
 class Catorganizer extends StatelessWidget {
-  const Catorganizer({
-    super.key,
-    required this.settingsController,
-  });
+  const Catorganizer(
+      {super.key, required this.settingsController, required this.categories});
 
   final SettingsController settingsController;
+  final List<Category> categories;
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +71,13 @@ class Catorganizer extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
-                  case SampleItemListView.routeName:
+                  case DocumentDetailsView.routeName:
+                    return const DocumentDetailsView();
+                  case CategoryListView.routeName:
                   default:
-                    return const SampleItemListView();
+                    return CategoryListView(
+                      categories: categories,
+                    );
                 }
               },
             );
