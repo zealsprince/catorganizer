@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 
-import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/classes/category.dart';
-import 'package:catorganizer/src/views/document/document_list_view.dart';
+
+import 'package:catorganizer/src/manifest/manifest.dart';
+
+import 'package:catorganizer/src/common_widgets/marked_icon.dart';
+
+import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
 /// Displays a list of categories.
 class CategoryListView extends StatelessWidget {
-  final List<Category> categories;
-  const CategoryListView({super.key, required this.categories});
+  final Manifest manifest;
+
+  late final List<Category> categoriesList;
+
+  CategoryListView({super.key, required this.manifest}) {
+    categoriesList =
+        manifest.categories.entries.map((category) => category.value).toList();
+  }
 
   static const routeName = '/';
 
@@ -18,12 +29,9 @@ class CategoryListView extends StatelessWidget {
         title: const Text('Categories'),
         actions: [
           IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => const AlertDialog(
-                      title:
-                          Text("This will open an OS file selection dialog")))),
+            icon: const Icon(Icons.add),
+            onPressed: () => manifest.addUncategorizedDocumentsSelection(),
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -47,25 +55,27 @@ class CategoryListView extends StatelessWidget {
         // scroll position when a user leaves and returns to the app after it
         // has been killed while running in the background.
         restorationId: 'CategoryListView',
-        itemCount: categories.length,
+        itemCount: manifest.categories.length,
         itemBuilder: (BuildContext context, int index) {
-          final category = categories[index];
+          final category = categoriesList[index];
 
           return ListTile(
               title: Text(category.title),
-              leading: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                category.icon,
-                Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Icon(Icons.circle, size: 12, color: category.color)),
-              ]),
-              splashColor: category.color,
+              leading: MarkedIcon(
+                color: category.color,
+                icon: category.icon,
+              ),
+              splashColor: category.color.withAlpha(0x11),
               onTap: () {
                 // Navigate to the details page. If the user leaves and returns to
                 // the app after it has been killed while running in the
                 // background, the navigation stack is restored.
-                Navigator.pushNamed(context, DocumentListView.routeName,
-                    arguments: category.documents);
+                Navigator.pushNamed(
+                  context,
+                  DocumentInCategoryListView.routeName,
+                  arguments: DocumentInCategoryListViewArguments(
+                      id: category.id, manifest: manifest),
+                );
               });
         },
       ),

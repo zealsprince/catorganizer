@@ -1,3 +1,4 @@
+import 'package:catorganizer/src/manifest/manifest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -9,15 +10,16 @@ import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
 import 'package:catorganizer/src/views/category/category_detail_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
+import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
 
 /// The Widget that configures your application.
 class Catorganizer extends StatelessWidget {
   const Catorganizer(
-      {super.key, required this.settingsController, required this.categories});
+      {super.key, required this.settingsController, required this.manifest});
 
   final SettingsController settingsController;
-  final List<Category> categories;
+  final Manifest manifest;
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +70,16 @@ class Catorganizer extends StatelessWidget {
                     return SettingsView(controller: settingsController);
 
                   case CategoryDetailView.routeName:
-                    return CategoryListView(categories: categories);
+                    return CategoryListView(manifest: manifest);
 
                   case DocumentListView.routeName:
                     return DocumentListView(
-                        documents: routeSettings.arguments as List<Document>);
+                        manifest: routeSettings.arguments as Manifest);
+
+                  case DocumentInCategoryListView.routeName:
+                    return DocumentInCategoryListView(
+                        arguments: routeSettings.arguments
+                            as DocumentInCategoryListViewArguments);
 
                   case DocumentDetailView.routeName:
                     return DocumentDetailView(
@@ -80,7 +87,7 @@ class Catorganizer extends StatelessWidget {
 
                   default:
                     return CategoryListView(
-                      categories: categories,
+                      manifest: manifest,
                     );
                 }
               },

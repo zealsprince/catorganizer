@@ -8,16 +8,32 @@ import 'package:catorganizer/src/manifest/manifest.dart';
 
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
 
-/// Displays a list of documents.
-class DocumentListView extends StatelessWidget {
+class DocumentInCategoryListViewArguments {
+  final String id;
   final Manifest manifest;
 
-  const DocumentListView({
-    super.key,
+  DocumentInCategoryListViewArguments({
+    required this.id,
     required this.manifest,
   });
+}
 
-  static const routeName = '/documents';
+/// Displays a list of documents.
+class DocumentInCategoryListView extends StatelessWidget {
+  final DocumentInCategoryListViewArguments arguments;
+
+  DocumentInCategoryListView({
+    super.key,
+    required this.arguments,
+  }) {
+    documents = arguments.manifest.categories[arguments.id]!.documents.entries
+        .map((documents) => documents.value)
+        .toList();
+  }
+
+  List<Document> documents = [];
+
+  static const routeName = '/categorized-documents';
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +41,18 @@ class DocumentListView extends StatelessWidget {
       appBar: AppBar(title: const Text('Documents'), actions: [
         IconButton(
           icon: const Icon(Icons.add),
-          onPressed: () => manifest.addUncategorizedDocumentsSelection(),
+          onPressed: () =>
+              arguments.manifest.addCategorizedDocumentsSelection(arguments.id),
         ),
       ]),
       body: ListView.builder(
         restorationId: 'DocumentListView',
-        itemCount: manifest.documents.length,
+        itemCount: documents.length,
         itemBuilder: (BuildContext context, int index) {
-          final document = manifest.documents[index];
+          final document = documents[index];
 
           return ListTile(
-              title: Text(document.title),
+              title: Text(document!.title),
               leading: const Icon(Icons.article_rounded),
               trailing: IconButton(
                 icon: const Icon(Icons.arrow_outward_rounded),

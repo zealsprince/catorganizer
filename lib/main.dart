@@ -1,15 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 
-import 'src/app.dart';
+import 'package:catorganizer/src/app.dart';
 
-import 'src/views/settings/settings_controller.dart';
-import 'src/views/settings/settings_service.dart';
+import 'package:catorganizer/src/manifest/manifest.dart';
 
-import 'src/classes/category.dart';
-import 'src/classes/document.dart';
-import 'src/classes/tag.dart';
+import 'package:catorganizer/src/views/settings/settings_controller.dart';
+import 'package:catorganizer/src/views/settings/settings_service.dart';
+
+import 'package:catorganizer/src/classes/document.dart';
+import 'package:catorganizer/src/classes/tag.dart';
 
 void main() async {
+  // Ensure bindings are initialized and then bind the custom window manager.
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(600, 800),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
   final settingsController = SettingsController(SettingsService());
@@ -18,22 +36,16 @@ void main() async {
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
 
-  // TODO: Create state loader for documents and categories.
-
-  List<Document> documents = <Document>[
-    const Document("0", "Test A Document", "/testA.pdf", <Tag>[Tag("shared")]),
-    const Document("1", "Test B Document", "/testB.pdf",
-        <Tag>[Tag("shared"), Tag("unique")])
-  ];
-
-  List<Category> categories = <Category>[
-    Category("test", "Tests", "This is an example testing category",
-        const Color(0xFFFFBB00), const Icon(Icons.folder), documents)
-  ];
+  // TODO: Convert manifest loader to read from disk.
+  Manifest manifest = Manifest.withDocuments(<Document>[
+    Document("0", "Test A Document", "/testA.pdf", <Tag>[const Tag("shared")]),
+    Document("1", "Test B Document", "/testB.pdf",
+        <Tag>[const Tag("shared"), const Tag("unique")])
+  ]);
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
-  runApp(Catorganizer(
-      settingsController: settingsController, categories: categories));
+  runApp(
+      Catorganizer(settingsController: settingsController, manifest: manifest));
 }
