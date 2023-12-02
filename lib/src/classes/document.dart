@@ -19,7 +19,7 @@ class Document {
   final List<Tag> tags;
 
   // Should probably assign this to some "Default" for null safety.
-  late Category category;
+  late Category category = Category.uncategorized();
 
   void assign(Category category) {
     category.removeDocument(this); // Make sure we unassign this document first.

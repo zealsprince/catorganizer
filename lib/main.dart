@@ -24,6 +24,7 @@ void main() async {
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setTitle('Catorganizer');
     await windowManager.show();
     await windowManager.focus();
   });

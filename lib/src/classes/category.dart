@@ -11,7 +11,7 @@ class Category {
   final String title;
   final String description;
   final Color color;
-  final Icon icon;
+  final Icon icon; // TODO: Change this to just an ID.
 
   Category(
     this.id,
@@ -34,7 +34,7 @@ class Category {
     this.id = uncategorizedIdentifier,
     this.title = uncategorizedTitle,
     this.description = "Documents that have not been assigned to any category",
-    this.color = const Color(0xFF000000),
+    this.color = const Color(0xFF33AAAA),
     this.icon = const Icon(Icons.folder),
   });
 

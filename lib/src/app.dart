@@ -6,6 +6,7 @@ import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
 import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/views/category/category_grid_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
 import 'package:catorganizer/src/views/category/category_detail_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
@@ -49,8 +50,6 @@ class Catorganizer extends StatelessWidget {
             Locale('en', ''),
           ],
 
-          title: "Categorizer",
-
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
@@ -67,6 +66,16 @@ class Catorganizer extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
+
+                  case CategoryListView.routeName:
+                    return CategoryListView(
+                      manifest: manifest,
+                    );
+
+                  case CategoryGridView.routeName:
+                    return CategoryGridView(
+                      manifest: manifest,
+                    );
 
                   case CategoryDetailView.routeName:
                     return CategoryListView(manifest: manifest);
@@ -85,7 +94,7 @@ class Catorganizer extends StatelessWidget {
                         document: routeSettings.arguments as Document);
 
                   default:
-                    return CategoryListView(
+                    return CategoryGridView(
                       manifest: manifest,
                     );
                 }

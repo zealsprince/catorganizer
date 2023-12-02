@@ -20,6 +20,10 @@ class DocumentListView extends StatelessWidget {
 
   static const routeName = '/documents';
 
+  // TODO: Bind to a state on the manifest.
+
+  // TODO: Split document view into a discrete row item containing the document.
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

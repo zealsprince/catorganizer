@@ -7,6 +7,7 @@ import 'package:catorganizer/src/manifest/manifest.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/views/category/category_grid_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
@@ -21,7 +22,7 @@ class CategoryListView extends StatelessWidget {
         manifest.categories.entries.map((category) => category.value).toList();
   }
 
-  static const routeName = '/';
+  static const routeName = '/category-list';
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,13 @@ class CategoryListView extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.search),
+          ),
+          IconButton(
+            icon: const Icon(Icons.grid_on),
+            onPressed: () => Navigator.pushReplacementNamed(
+              context,
+              CategoryGridView.routeName,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.add),

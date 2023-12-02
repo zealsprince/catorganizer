@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CategoryDetailView extends StatelessWidget {
   const CategoryDetailView({super.key});
 
-  static const routeName = '/category';
+  static const routeName = '/category-details';
 
   @override
   Widget build(BuildContext context) {
