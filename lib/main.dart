@@ -38,9 +38,24 @@ void main() async {
 
   // TODO: Convert manifest loader to read from disk.
   Manifest manifest = Manifest.withDocuments(<Document>[
-    Document("0", "Test A Document", "/testA.pdf", <Tag>[const Tag("shared")]),
-    Document("1", "Test B Document", "/testB.pdf",
-        <Tag>[const Tag("shared"), const Tag("unique")])
+    Document(
+      "0",
+      "Test A Document",
+      "/testA.pdf",
+      <Tag>[const Tag("shared")],
+    ),
+    Document(
+      "1",
+      "Test B Document",
+      "/testB.pdf",
+      <Tag>[const Tag("shared"), const Tag("unique")],
+    ),
+    Document(
+      "2",
+      "Test C Document",
+      "/testC.pdf",
+      <Tag>[],
+    ),
   ]);
 
   // Run the app and pass in the SettingsController. The app listens to the

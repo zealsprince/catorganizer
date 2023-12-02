@@ -7,6 +7,7 @@ import 'package:catorganizer/src/manifest/manifest.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/views/settings/settings_view.dart';
+import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
 /// Displays a list of categories.
@@ -28,6 +29,16 @@ class CategoryListView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Categories'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                DocumentListView.routeName,
+                arguments: manifest,
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => manifest.addUncategorizedDocumentsSelection(),
@@ -61,6 +72,7 @@ class CategoryListView extends StatelessWidget {
 
           return ListTile(
               title: Text(category.title),
+              trailing: Text('(${category.documents.length})'),
               leading: MarkedIcon(
                 color: category.color,
                 icon: category.icon,

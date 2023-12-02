@@ -1,8 +1,7 @@
-import 'package:catorganizer/src/manifest/manifest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/manifest/manifest.dart';
 import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
