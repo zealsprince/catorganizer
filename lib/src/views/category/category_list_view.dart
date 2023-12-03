@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:catorganizer/src/helpers/helpers.dart';
+
 import 'package:catorganizer/src/classes/category.dart';
 
 import 'package:catorganizer/src/manifest/manifest.dart';
@@ -82,10 +84,10 @@ class CategoryListView extends StatelessWidget {
               title: Text(category.title),
               trailing: Text('(${category.documents.length})'),
               leading: MarkedIcon(
-                color: category.color,
-                icon: category.icon,
+                color: hexARGBToColor(category.color),
+                icon: Icon(getMaterialIcon(category.icon)),
               ),
-              splashColor: category.color.withAlpha(0x11),
+              splashColor: hexARGBToColor(category.color).withAlpha(0x11),
               onTap: () {
                 // Navigate to the details page. If the user leaves and returns to
                 // the app after it has been killed while running in the

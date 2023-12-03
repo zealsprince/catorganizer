@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:open_app_file/open_app_file.dart';
 
+import 'package:catorganizer/src/helpers/helpers.dart';
+
 import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/manifest/manifest.dart';
@@ -27,18 +29,17 @@ class DocumentInCategoryListView extends StatelessWidget {
   DocumentInCategoryListView({
     super.key,
     required this.arguments,
-  }) {
-    documents = arguments.manifest.categories[arguments.id]!.documents.entries
-        .map((documents) => documents.value)
-        .toList();
-  }
-
-  List<Document> documents = [];
+  }) {}
 
   static const routeName = '/categorized-documents';
 
   @override
   Widget build(BuildContext context) {
+    List<Document> documents = arguments
+        .manifest.categories[arguments.id]!.documents.entries
+        .map((documents) => documents.value)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
           title: Text(arguments.manifest.categories[arguments.id]!.title),
@@ -69,7 +70,7 @@ class DocumentInCategoryListView extends StatelessWidget {
                               document.tags.map((tag) => tag.value).toList(),
                         ),
                   leading: MarkedIcon(
-                    color: document.category.color,
+                    color: hexARGBToColor(document.category.color),
                     icon: const Icon(Icons.article_rounded),
                   ),
                   trailing: IconButton(

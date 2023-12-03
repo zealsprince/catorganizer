@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:catorganizer/src/helpers/helpers.dart';
+
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -63,8 +65,8 @@ class DocumentDetailView extends StatelessWidget {
             child: Row(
               children: [
                 MarkedIcon(
-                  color: document.category.color,
-                  icon: document.category.icon,
+                  color: hexARGBToColor(document.category.color),
+                  icon: Icon(getMaterialIcon(document.category.icon)),
                 ),
                 Padding(
                     padding: const EdgeInsets.only(left: 8),

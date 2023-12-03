@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:catorganizer/src/helpers/helpers.dart';
+
 import 'package:catorganizer/src/classes/category.dart';
 
 import 'package:catorganizer/src/manifest/manifest.dart';
@@ -68,9 +70,9 @@ class CategoryGridView extends StatelessWidget {
             children.add(
               InkWell(
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
-                hoverColor: category.color.withAlpha(0x11),
-                splashColor: category.color.withAlpha(0x44),
-                highlightColor: category.color.withAlpha(0x33),
+                hoverColor: hexARGBToColor(category.color).withAlpha(0x11),
+                splashColor: hexARGBToColor(category.color).withAlpha(0x44),
+                highlightColor: hexARGBToColor(category.color).withAlpha(0x33),
                 onTap: () {
                   // Navigate to the details page. If the user leaves and returns to
                   // the app after it has been killed while running in the
@@ -84,14 +86,15 @@ class CategoryGridView extends StatelessWidget {
                 },
                 child: Card(
                   color: const Color(0x00000000),
-                  surfaceTintColor: category.color.withAlpha(0x44),
+                  surfaceTintColor:
+                      hexARGBToColor(category.color).withAlpha(0x44),
                   shadowColor: const Color(0x22000000),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        category.icon.icon,
-                        color: category.color,
+                        getMaterialIcon(category.icon),
+                        color: hexARGBToColor(category.color),
                         size: 64,
                       ),
                       Text(

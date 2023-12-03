@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:open_app_file/open_app_file.dart';
 
+import 'package:catorganizer/src/helpers/helpers.dart';
+
 import 'package:catorganizer/src/manifest/manifest.dart';
+
+import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
@@ -22,10 +25,12 @@ class DocumentListView extends StatelessWidget {
 
   // TODO: Bind to a state on the manifest.
 
-  // TODO: Split document view into a discrete row item containing the document.
-
   @override
   Widget build(BuildContext context) {
+    // We'll want to organize our documents here for easier handling.
+    List<Document> documents =
+        manifest.documents.entries.map((document) => document.value).toList();
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -63,7 +68,7 @@ class DocumentListView extends StatelessWidget {
         restorationId: 'DocumentListView',
         itemCount: manifest.documents.length,
         itemBuilder: (BuildContext context, int index) {
-          final document = manifest.documents[index];
+          final document = documents[index];
 
           return ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 68, maxHeight: 68),
@@ -79,7 +84,7 @@ class DocumentListView extends StatelessWidget {
                               document.tags.map((tag) => tag.value).toList(),
                         ),
                   leading: MarkedIcon(
-                    color: document.category.color,
+                    color: hexARGBToColor(document.category.color),
                     icon: const Icon(Icons.article_rounded),
                   ),
                   trailing: IconButton(

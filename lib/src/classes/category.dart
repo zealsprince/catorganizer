@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:catorganizer/src/classes/document.dart';
 
 /// A placeholder class that represents an entity or model.
@@ -10,8 +8,8 @@ class Category {
   final String id;
   final String title;
   final String description;
-  final Color color;
-  final Icon icon; // TODO: Change this to just an ID.
+  final String color;
+  final int icon;
 
   Category(
     this.id,
@@ -34,8 +32,8 @@ class Category {
     this.id = uncategorizedIdentifier,
     this.title = uncategorizedTitle,
     this.description = "Documents that have not been assigned to any category",
-    this.color = const Color(0xFF33AAAA),
-    this.icon = const Icon(Icons.folder),
+    this.color = "ff33aaaa",
+    this.icon = 0xf77e,
   });
 
   Map<String, Document> documents = {};
