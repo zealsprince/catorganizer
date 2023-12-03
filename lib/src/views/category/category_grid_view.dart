@@ -11,22 +11,19 @@ import 'package:catorganizer/src/views/category/category_list_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
-/// Displays a list of categories.
-class CategoryGridView extends StatelessWidget {
+/// Displays a grid of categories.
+class CategoryGridView extends StatefulWidget {
   final Manifest manifest;
 
-  late final List<Category> categoriesList;
-
-  CategoryGridView({super.key, required this.manifest}) {
-    categoriesList = manifest
-        .getCategories()
-        .entries
-        .map((category) => category.value)
-        .toList();
-  }
+  const CategoryGridView({super.key, required this.manifest});
 
   static const routeName = '/category-grid';
 
+  @override
+  _CategoryGridViewState createState() => _CategoryGridViewState();
+}
+
+class _CategoryGridViewState extends State<CategoryGridView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +35,7 @@ class CategoryGridView extends StatelessWidget {
               Navigator.pushNamed(
                 context,
                 DocumentListView.routeName,
-                arguments: manifest,
+                arguments: widget.manifest,
               );
             },
             icon: const Icon(Icons.search),
@@ -52,7 +49,8 @@ class CategoryGridView extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => manifest.addUncategorizedDocumentsSelection(),
+            onPressed: () =>
+                widget.manifest.addUncategorizedDocumentsSelection(),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -65,8 +63,15 @@ class CategoryGridView extends StatelessWidget {
 
       // Create a custom builder that iterates over categories and creates tiles
       // for each one with the category's styling.
-      body: Builder(
-        builder: (context) {
+      body: ListenableBuilder(
+        listenable: widget.manifest,
+        builder: (context, Widget? child) {
+          List<Category> categoriesList = widget.manifest
+              .getCategories()
+              .entries
+              .map((category) => category.value)
+              .toList();
+
           List<Widget> children = [];
 
           for (Category category in categoriesList) {
@@ -84,7 +89,7 @@ class CategoryGridView extends StatelessWidget {
                     context,
                     DocumentInCategoryListView.routeName,
                     arguments: DocumentInCategoryListViewArguments(
-                        id: category.id, manifest: manifest),
+                        id: category.id, manifest: widget.manifest),
                   );
                 },
                 child: Card(

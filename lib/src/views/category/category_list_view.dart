@@ -13,22 +13,19 @@ import 'package:catorganizer/src/views/category/category_grid_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
-/// Displays a list of categories.
-class CategoryListView extends StatelessWidget {
+class CategoryListView extends StatefulWidget {
   final Manifest manifest;
 
-  late final List<Category> categoriesList;
-
-  CategoryListView({super.key, required this.manifest}) {
-    categoriesList = manifest
-        .getCategories()
-        .entries
-        .map((category) => category.value)
-        .toList();
-  }
+  const CategoryListView({super.key, required this.manifest});
 
   static const routeName = '/category-list';
 
+  @override
+  CategoryListViewState createState() => CategoryListViewState();
+}
+
+/// Displays a list of categories.
+class CategoryListViewState extends State<CategoryListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +37,7 @@ class CategoryListView extends StatelessWidget {
               Navigator.pushNamed(
                 context,
                 DocumentListView.routeName,
-                arguments: manifest,
+                arguments: widget.manifest,
               );
             },
             icon: const Icon(Icons.search),
@@ -54,7 +51,8 @@ class CategoryListView extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => manifest.addUncategorizedDocumentsSelection(),
+            onPressed: () =>
+                widget.manifest.addUncategorizedDocumentsSelection(),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -74,34 +72,45 @@ class CategoryListView extends StatelessWidget {
       // In contrast to the default ListView constructor, which requires
       // building all Widgets up front, the ListView.builder constructor lazily
       // builds Widgets as they’re scrolled into view.
-      body: ListView.builder(
-        // Providing a restorationId allows the ListView to restore the
-        // scroll position when a user leaves and returns to the app after it
-        // has been killed while running in the background.
-        restorationId: 'CategoryListView',
-        itemCount: manifest.getCategories().length,
-        itemBuilder: (BuildContext context, int index) {
-          final category = categoriesList[index];
+      body: ListenableBuilder(
+        listenable: widget.manifest,
+        builder: (context, Widget? child) {
+          List<Category> categoriesList = widget.manifest
+              .getCategories()
+              .entries
+              .map((category) => category.value)
+              .toList();
 
-          return ListTile(
-              title: Text(category.title),
-              trailing: Text('(${category.documents.length})'),
-              leading: MarkedIcon(
-                color: hexARGBToColor(category.color),
-                icon: Icon(getMaterialIcon(category.icon)),
-              ),
-              splashColor: hexARGBToColor(category.color).withAlpha(0x11),
-              onTap: () {
-                // Navigate to the details page. If the user leaves and returns to
-                // the app after it has been killed while running in the
-                // background, the navigation stack is restored.
-                Navigator.pushNamed(
-                  context,
-                  DocumentInCategoryListView.routeName,
-                  arguments: DocumentInCategoryListViewArguments(
-                      id: category.id, manifest: manifest),
-                );
-              });
+          return ListView.builder(
+            // Providing a restorationId allows the ListView to restore the
+            // scroll position when a user leaves and returns to the app after it
+            // has been killed while running in the background.
+            restorationId: 'CategoryListView',
+            itemCount: widget.manifest.getCategories().length,
+            itemBuilder: (BuildContext context, int index) {
+              final category = categoriesList[index];
+
+              return ListTile(
+                  title: Text(category.title),
+                  trailing: Text('(${category.documents.length})'),
+                  leading: MarkedIcon(
+                    color: hexARGBToColor(category.color),
+                    icon: Icon(getMaterialIcon(category.icon)),
+                  ),
+                  splashColor: hexARGBToColor(category.color).withAlpha(0x11),
+                  onTap: () {
+                    // Navigate to the details page. If the user leaves and returns to
+                    // the app after it has been killed while running in the
+                    // background, the navigation stack is restored.
+                    Navigator.pushNamed(
+                      context,
+                      DocumentInCategoryListView.routeName,
+                      arguments: DocumentInCategoryListViewArguments(
+                          id: category.id, manifest: widget.manifest),
+                    );
+                  });
+            },
+          );
         },
       ),
     );

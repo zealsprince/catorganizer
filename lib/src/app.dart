@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 import 'package:catorganizer/src/classes/category.dart';
-import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
 import 'package:catorganizer/src/views/settings/settings_view.dart';

@@ -22,8 +22,7 @@ class DocumentInCategoryListViewArguments {
   });
 }
 
-/// Displays a list of documents.
-class DocumentInCategoryListView extends StatelessWidget {
+class DocumentInCategoryListView extends StatefulWidget {
   final DocumentInCategoryListViewArguments arguments;
 
   const DocumentInCategoryListView({
@@ -34,67 +33,83 @@ class DocumentInCategoryListView extends StatelessWidget {
   static const routeName = '/categorized-documents';
 
   @override
-  Widget build(BuildContext context) {
-    List<Document> documents = arguments.manifest
-        .getCategories()[arguments.id]!
-        .documents
-        .entries
-        .map((documents) => documents.value)
-        .toList();
+  _DocumentInCategoryListViewState createState() =>
+      _DocumentInCategoryListViewState();
+}
 
+/// Displays a list of documents.
+class _DocumentInCategoryListViewState
+    extends State<DocumentInCategoryListView> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(arguments.manifest.getCategories()[arguments.id]!.title),
+          title: Text(widget.arguments.manifest
+              .getCategories()[widget.arguments.id]!
+              .title),
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () => arguments.manifest
-                  .addCategorizedDocumentsSelection(arguments.id),
+              onPressed: () => widget.arguments.manifest
+                  .addCategorizedDocumentsSelection(widget.arguments.id),
             ),
           ]),
-      body: ListView.builder(
-        restorationId: 'DocumentListView',
-        itemCount: documents.length,
-        itemBuilder: (BuildContext context, int index) {
-          final document = documents[index];
+      body: ListenableBuilder(
+        listenable: widget.arguments.manifest,
+        builder: (context, Widget? child) {
+          List<Document> documents = widget.arguments.manifest
+              .getCategories()[widget.arguments.id]!
+              .documents
+              .entries
+              .map((documents) => documents.value)
+              .toList();
 
-          return ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 68, maxHeight: 68),
-            child: Center(
-              child: ListTile(
-                  title: Text(document.title),
-                  subtitle: document.tags.isEmpty
-                      ? null
-                      : Tags(
-                          count: 5,
-                          size: 12,
-                          values:
-                              document.tags.map((tag) => tag.value).toList(),
-                        ),
-                  leading: MarkedIcon(
-                    color: hexARGBToColor(document.category.color),
-                    icon: const Icon(Icons.article_rounded),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.arrow_outward_rounded),
-                    onPressed: () {
-                      OpenAppFile.open(document.path);
-                    },
-                  ),
-                  onTap: () {
-                    // Navigate to the details page. If the user leaves and returns to
-                    // the app after it has been killed while running in the
-                    // background, the navigation stack is restored.
-                    Navigator.pushNamed(
-                      context,
-                      DocumentDetailView.routeName,
-                      arguments: DocumentDetailViewArguments(
-                        id: document.uuid,
-                        manifest: arguments.manifest,
+          return ListView.builder(
+            restorationId: 'DocumentInCategoryListView',
+            itemCount: documents.length,
+            itemBuilder: (BuildContext context, int index) {
+              final document = documents[index];
+
+              return ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 68, maxHeight: 68),
+                child: Center(
+                  child: ListTile(
+                      title: Text(document.title),
+                      subtitle: document.tags.isEmpty
+                          ? null
+                          : Tags(
+                              count: 5,
+                              size: 12,
+                              values: document.tags
+                                  .map((tag) => tag.value)
+                                  .toList(),
+                            ),
+                      leading: MarkedIcon(
+                        color: hexARGBToColor(document.category.color),
+                        icon: const Icon(Icons.article_rounded),
                       ),
-                    );
-                  }),
-            ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.arrow_outward_rounded),
+                        onPressed: () {
+                          OpenAppFile.open(document.path);
+                        },
+                      ),
+                      onTap: () {
+                        // Navigate to the details page. If the user leaves and returns to
+                        // the app after it has been killed while running in the
+                        // background, the navigation stack is restored.
+                        Navigator.pushNamed(
+                          context,
+                          DocumentDetailView.routeName,
+                          arguments: DocumentDetailViewArguments(
+                            id: document.uuid,
+                            manifest: widget.arguments.manifest,
+                          ),
+                        );
+                      }),
+                ),
+              );
+            },
           );
         },
       ),
