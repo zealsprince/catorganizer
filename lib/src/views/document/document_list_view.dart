@@ -3,7 +3,7 @@ import 'package:open_app_file/open_app_file.dart';
 
 import 'package:catorganizer/src/helpers/helpers.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/classes/document.dart';
 
@@ -28,8 +28,11 @@ class DocumentListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // We'll want to organize our documents here for easier handling.
-    List<Document> documents =
-        manifest.documents.entries.map((document) => document.value).toList();
+    List<Document> documents = manifest
+        .getDocuments()
+        .entries
+        .map((document) => document.value)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +69,7 @@ class DocumentListView extends StatelessWidget {
       ),
       body: ListView.builder(
         restorationId: 'DocumentListView',
-        itemCount: manifest.documents.length,
+        itemCount: manifest.getDocuments().length,
         itemBuilder: (BuildContext context, int index) {
           final document = documents[index];
 
@@ -100,7 +103,10 @@ class DocumentListView extends StatelessWidget {
                     Navigator.pushNamed(
                       context,
                       DocumentDetailView.routeName,
-                      arguments: document,
+                      arguments: DocumentDetailViewArguments(
+                        id: document.uuid,
+                        manifest: manifest,
+                      ),
                     );
                   }),
             ),

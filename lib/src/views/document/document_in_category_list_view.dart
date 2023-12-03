@@ -5,7 +5,7 @@ import 'package:catorganizer/src/helpers/helpers.dart';
 
 import 'package:catorganizer/src/classes/document.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
@@ -26,23 +26,25 @@ class DocumentInCategoryListViewArguments {
 class DocumentInCategoryListView extends StatelessWidget {
   final DocumentInCategoryListViewArguments arguments;
 
-  DocumentInCategoryListView({
+  const DocumentInCategoryListView({
     super.key,
     required this.arguments,
-  }) {}
+  });
 
   static const routeName = '/categorized-documents';
 
   @override
   Widget build(BuildContext context) {
-    List<Document> documents = arguments
-        .manifest.categories[arguments.id]!.documents.entries
+    List<Document> documents = arguments.manifest
+        .getCategories()[arguments.id]!
+        .documents
+        .entries
         .map((documents) => documents.value)
         .toList();
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(arguments.manifest.categories[arguments.id]!.title),
+          title: Text(arguments.manifest.getCategories()[arguments.id]!.title),
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
@@ -86,7 +88,10 @@ class DocumentInCategoryListView extends StatelessWidget {
                     Navigator.pushNamed(
                       context,
                       DocumentDetailView.routeName,
-                      arguments: document,
+                      arguments: DocumentDetailViewArguments(
+                        id: document.uuid,
+                        manifest: arguments.manifest,
+                      ),
                     );
                   }),
             ),

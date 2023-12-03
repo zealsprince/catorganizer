@@ -3,7 +3,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:catorganizer/src/app.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
 import 'package:catorganizer/src/views/settings/settings_service.dart';

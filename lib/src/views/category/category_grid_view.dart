@@ -4,7 +4,7 @@ import 'package:catorganizer/src/helpers/helpers.dart';
 
 import 'package:catorganizer/src/classes/category.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
@@ -18,8 +18,11 @@ class CategoryGridView extends StatelessWidget {
   late final List<Category> categoriesList;
 
   CategoryGridView({super.key, required this.manifest}) {
-    categoriesList =
-        manifest.categories.entries.map((category) => category.value).toList();
+    categoriesList = manifest
+        .getCategories()
+        .entries
+        .map((category) => category.value)
+        .toList();
   }
 
   static const routeName = '/category-grid';

@@ -4,7 +4,7 @@ import 'package:catorganizer/src/helpers/helpers.dart';
 
 import 'package:catorganizer/src/classes/category.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -20,8 +20,11 @@ class CategoryListView extends StatelessWidget {
   late final List<Category> categoriesList;
 
   CategoryListView({super.key, required this.manifest}) {
-    categoriesList =
-        manifest.categories.entries.map((category) => category.value).toList();
+    categoriesList = manifest
+        .getCategories()
+        .entries
+        .map((category) => category.value)
+        .toList();
   }
 
   static const routeName = '/category-list';
@@ -76,7 +79,7 @@ class CategoryListView extends StatelessWidget {
         // scroll position when a user leaves and returns to the app after it
         // has been killed while running in the background.
         restorationId: 'CategoryListView',
-        itemCount: manifest.categories.length,
+        itemCount: manifest.getCategories().length,
         itemBuilder: (BuildContext context, int index) {
           final category = categoriesList[index];
 

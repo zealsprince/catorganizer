@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:catorganizer/src/manifest/manifest.dart';
+import 'package:catorganizer/src/models/manifest.dart';
+import 'package:catorganizer/src/classes/category.dart';
 import 'package:catorganizer/src/classes/document.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
@@ -12,6 +13,7 @@ import 'package:catorganizer/src/views/category/category_detail_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
+import 'package:catorganizer/src/views/document/document_edit_view.dart';
 
 /// The Widget that configures your application.
 class Catorganizer extends StatelessWidget {
@@ -78,20 +80,32 @@ class Catorganizer extends StatelessWidget {
                     );
 
                   case CategoryDetailView.routeName:
-                    return CategoryListView(manifest: manifest);
+                    return CategoryDetailView(
+                      category: routeSettings.arguments as Category,
+                    );
 
                   case DocumentListView.routeName:
                     return DocumentListView(
-                        manifest: routeSettings.arguments as Manifest);
+                      manifest: routeSettings.arguments as Manifest,
+                    );
 
                   case DocumentInCategoryListView.routeName:
                     return DocumentInCategoryListView(
-                        arguments: routeSettings.arguments
-                            as DocumentInCategoryListViewArguments);
+                      arguments: routeSettings.arguments
+                          as DocumentInCategoryListViewArguments,
+                    );
 
                   case DocumentDetailView.routeName:
                     return DocumentDetailView(
-                        document: routeSettings.arguments as Document);
+                      arguments: routeSettings.arguments
+                          as DocumentDetailViewArguments,
+                    );
+
+                  case DocumentEditView.routeName:
+                    return DocumentEditView(
+                      arguments:
+                          routeSettings.arguments as DocumentEditViewArguments,
+                    );
 
                   default:
                     return CategoryGridView(

@@ -5,6 +5,13 @@ import 'package:catorganizer/src/classes/tag.dart';
 class Document {
   Document(this.uuid, this.title, this.path, this.tags);
 
+  Document.empty({
+    this.uuid = "",
+    this.title = "",
+    this.path = "",
+    this.tags = const [],
+  });
+
   Document.withCategory(
     this.uuid,
     this.title,

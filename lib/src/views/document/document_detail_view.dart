@@ -5,22 +5,50 @@ import 'package:catorganizer/src/helpers/helpers.dart';
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
+import 'package:catorganizer/src/models/manifest.dart';
+
 import 'package:catorganizer/src/classes/document.dart';
+
+import 'package:catorganizer/src/views/document/document_edit_view.dart';
+
+class DocumentDetailViewArguments {
+  final String id;
+  final Manifest manifest;
+
+  DocumentDetailViewArguments({
+    required this.id,
+    required this.manifest,
+  });
+}
 
 /// Displays detailed information about a Document.
 class DocumentDetailView extends StatelessWidget {
-  final Document document;
+  final DocumentDetailViewArguments arguments;
 
-  const DocumentDetailView({super.key, required this.document});
+  const DocumentDetailView({super.key, required this.arguments});
 
   static const routeName = '/document';
 
   @override
   Widget build(BuildContext context) {
+    // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
+    Document document = (arguments.manifest.getDocument(arguments.id) != null)
+        ? arguments.manifest.getDocument(arguments.id)!
+        : Document.empty();
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(document.title),
-      ),
+      appBar: AppBar(title: Text(document.title), actions: [
+        IconButton(
+            icon: const Icon(Icons.edit_document),
+            onPressed: () => Navigator.pushNamed(
+                  context,
+                  DocumentEditView.routeName,
+                  arguments: DocumentEditViewArguments(
+                    id: document.uuid,
+                    manifest: arguments.manifest,
+                  ),
+                )),
+      ]),
       body: Column(
         children: [
           const Padding(

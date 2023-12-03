@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:catorganizer/src/classes/category.dart';
+
 /// Displays detailed information about a Document.
 class CategoryDetailView extends StatelessWidget {
-  const CategoryDetailView({super.key});
+  final Category category;
+
+  const CategoryDetailView({super.key, required this.category});
 
   static const routeName = '/category-details';
 
