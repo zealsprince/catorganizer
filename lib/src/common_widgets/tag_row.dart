@@ -24,13 +24,18 @@ class TagRow extends StatelessWidget {
     for (int i = 0; i < values.length; i++) {
       if (i >= count) {
         // If the next tag is beyond the count; stop, truncate and append text.
-        children.add(Text('+${values.length - count}'));
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text('+${values.length - count}'),
+          ),
+        );
         break;
       }
 
       children.add(
         Padding(
-          padding: EdgeInsets.only(right: size / 4),
+          padding: EdgeInsets.only(right: size / 4, bottom: 8),
           child: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(size * 2)),
@@ -48,6 +53,8 @@ class TagRow extends StatelessWidget {
     }
 
     // Send back all built children.
-    return Row(mainAxisSize: MainAxisSize.min, children: children);
+    return Wrap(
+      children: children,
+    );
   }
 }

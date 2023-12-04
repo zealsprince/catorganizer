@@ -85,12 +85,13 @@ class _DocumentListViewState extends State<DocumentListView> {
                 child: Center(
                   child: ListTile(
                       title: Text(document.title),
-                      subtitle: document.tags.isEmpty
+                      subtitle: document.getTags().isEmpty
                           ? null
                           : TagRow(
                               count: 5,
                               size: 12,
-                              values: document.tags
+                              values: document
+                                  .getTags()
                                   .map((tag) => tag.value)
                                   .toList(),
                             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:catorganizer/src/helpers/helpers.dart';
 
@@ -9,9 +10,11 @@ import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/classes/document.dart';
 import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/classes/tag.dart';
 
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
+import 'package:flutter/services.dart';
 
 class DocumentEditViewArguments {
   final String id;
@@ -23,24 +26,41 @@ class DocumentEditViewArguments {
   });
 }
 
-/// Displays detailed information about a Document.
-class DocumentEditView extends StatelessWidget {
+class DocumentEditView extends StatefulWidget {
   final DocumentEditViewArguments arguments;
 
-  DocumentEditView({super.key, required this.arguments});
+  const DocumentEditView({super.key, required this.arguments});
 
   static const routeName = '/document-edit';
 
-  TextEditingController _titleController = TextEditingController();
+  @override
+  _DocumentEditViewState createState() => _DocumentEditViewState();
+}
+
+/// Displays detailed information about a Document.
+class _DocumentEditViewState extends State<DocumentEditView> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
 
   void _changeCategory(Document document, Category category) {
     document.category = category;
   }
 
+  void _addTag(String text, Document document) {
+    // TODO: Make tags only apply on save.
+    if (text == "") return;
+
+    _tagController.text = ""; // Reset the tag controller input.
+
+    document.addTag(Tag(text.toLowerCase()));
+
+    widget.arguments.manifest.setDocument(document);
+  }
+
   void _save(BuildContext context, Document document) {
     document.title = _titleController.text;
 
-    arguments.manifest.setDocument(document);
+    widget.arguments.manifest.setDocument(document);
 
     Navigator.pop(context);
   }
@@ -56,7 +76,7 @@ class DocumentEditView extends StatelessWidget {
             // The "Yes" button
             TextButton(
                 onPressed: () {
-                  arguments.manifest.deleteDocument(document);
+                  widget.arguments.manifest.deleteDocument(document);
 
                   Navigator.popUntil(
                     context,
@@ -82,14 +102,15 @@ class DocumentEditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
-    Document document = (arguments.manifest.getDocument(arguments.id) != null)
-        ? arguments.manifest.getDocument(arguments.id)!
-        : Document.empty();
+    Document document =
+        (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
+            ? widget.arguments.manifest.getDocument(widget.arguments.id)!
+            : Document.empty();
 
     _titleController.text = document.title;
 
     List<DropdownMenuItem<Category>> categoryMenuItems = [];
-    for (Category category in arguments.manifest
+    for (Category category in widget.arguments.manifest
         .getCategories()
         .entries
         .map((category) => category.value)
@@ -117,6 +138,7 @@ class DocumentEditView extends StatelessWidget {
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ---------------------- Title text field ----------------------
           const Padding(
@@ -169,13 +191,13 @@ class DocumentEditView extends StatelessWidget {
           ),
           const Divider(),
           // ----------------------------- Tags ----------------------------
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8, top: 8),
+          const Padding(
+            padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
             child: Row(
               children: [
                 Text(
-                  document.tags.isEmpty ? "" : "Tags (Not modifiable yet):",
-                  style: const TextStyle(
+                  "Tags:",
+                  style: TextStyle(
                     fontSize: 16,
                   ),
                 )
@@ -184,13 +206,53 @@ class DocumentEditView extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
+            child: ListenableBuilder(
+              listenable: widget.arguments.manifest,
+              builder: (context, Widget? child) => TagRow(
+                count: 100,
+                size: 14,
+                values: document.getTags().map((tag) => tag.value).toList(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, bottom: 8),
             child: Row(
               children: [
-                TagRow(
-                  count: 100,
-                  size: 14,
-                  values: document.tags.map((tag) => tag.value).toList(),
-                ),
+                ConstrainedBox(
+                  constraints: BoxConstraints.tight(
+                    const Size(240, 64),
+                  ),
+                  child: TextField(
+                    maxLength: 24,
+                    textAlign: TextAlign.left,
+                    textAlignVertical: TextAlignVertical.center,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'[a-zA-Z0-9\-]'),
+                      ),
+                    ],
+                    controller: _tagController,
+                    onSubmitted: (text) => _addTag(text, document),
+                    style: const TextStyle(
+                      height: 1,
+                      fontSize: 14,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Add a tag',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.add, size: 16),
+                        onPressed: () => _addTag(_tagController.text, document),
+                      ),
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(36),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

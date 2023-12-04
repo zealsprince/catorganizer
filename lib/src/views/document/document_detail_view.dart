@@ -60,6 +60,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
           ]),
           body: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ---------------------------- Path ----------------------------
               const Padding(
@@ -133,7 +134,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                 child: Row(
                   children: [
                     Text(
-                      document.tags.isEmpty ? "" : "Tags:",
+                      document.getTags().isEmpty ? "" : "Tags:",
                       style: const TextStyle(
                         fontSize: 16,
                       ),
@@ -143,14 +144,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 16, bottom: 8),
-                child: Row(
-                  children: [
-                    TagRow(
-                      count: 100,
-                      size: 14,
-                      values: document.tags.map((tag) => tag.value).toList(),
-                    ),
-                  ],
+                child: TagRow(
+                  count: 100,
+                  size: 14,
+                  values: document.getTags().map((tag) => tag.value).toList(),
                 ),
               ),
             ],
