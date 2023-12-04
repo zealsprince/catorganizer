@@ -148,11 +148,14 @@ class Manifest extends ChangeNotifier {
     files = await openFiles();
 
     for (final file in files) {
-      Document document = Document(
+      Document document = Document.withCategory(
         file.path,
         file.path,
         file.path,
         [],
+        getCategory(id) == null
+            ? _categories[Category.uncategorizedIdentifier]!
+            : getCategory(id)!,
       );
 
       // Append this new document to the global document pool.

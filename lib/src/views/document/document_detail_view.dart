@@ -59,6 +59,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                     )),
           ]),
           body: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // ---------------------------- Path ----------------------------
               const Padding(
@@ -75,12 +76,18 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
                 child: Row(
                   children: [
-                    Padding(
+                    Flexible(
+                      child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text(document.path)),
+                        child: Text(
+                          document.path,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -107,9 +114,14 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                       color: hexARGBToColor(document.category.color),
                       icon: Icon(getMaterialIcon(document.category.icon)),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(document.category.title),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          document.category.title,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
                   ],
                 ),
