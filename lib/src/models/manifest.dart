@@ -52,7 +52,7 @@ class Manifest extends ChangeNotifier {
       Document document = _documents[key]!;
 
       // Sub-par testing implementation...
-      _categories[Category.uncategorizedIdentifier]!.addDocument(document);
+      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
       document.assign(_categories[Category.uncategorizedIdentifier]!);
     }
   }
@@ -69,7 +69,7 @@ class Manifest extends ChangeNotifier {
       Document document = _documents[key]!;
 
       // Sub-par testing implementation...
-      _categories[Category.uncategorizedIdentifier]!.addDocument(document);
+      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
       document.assign(_categories[Category.uncategorizedIdentifier]!);
     }
   }
@@ -90,26 +90,30 @@ class Manifest extends ChangeNotifier {
     return _documents[id];
   }
 
-  Future<void> registerCategory(Category category) async {
+  Future<void> setCategory(Category category) async {
     _categories[category.id] = category;
 
     await writeManifest();
   }
 
-  Future<void> unregisterCategory(Category category) async {
+  Future<void> deleteCategory(Category category) async {
     _categories.remove(category.id);
 
     await writeManifest();
   }
 
-  Future<void> registerDocument(Document document) async {
+  Future<void> setDocument(Document document) async {
     _documents[document.uuid] = document;
+
+    document.category.assignDocument(document);
 
     await writeManifest();
   }
 
-  Future<void> unregisterDocument(Document document) async {
+  Future<void> deleteDocument(Document document) async {
     _documents.remove(document.uuid);
+
+    document.category.removeDocument(document);
 
     await writeManifest();
   }
@@ -132,7 +136,7 @@ class Manifest extends ChangeNotifier {
       _documents[document.uuid] = document;
 
       // The next step is to assign them to a category as well.
-      _categories[Category.uncategorizedIdentifier]!.addDocument(document);
+      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
     }
 
     await writeManifest();
@@ -155,7 +159,7 @@ class Manifest extends ChangeNotifier {
       _documents[document.uuid] = document;
 
       // The next step is to assign them to a category as well.
-      _categories[id]!.addDocument(document);
+      _categories[id]!.assignDocument(document);
     }
 
     await writeManifest();

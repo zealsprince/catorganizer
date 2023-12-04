@@ -21,9 +21,10 @@ class Document {
   );
 
   final String uuid;
-  final String title;
   final String path;
-  final List<Tag> tags;
+
+  String title;
+  List<Tag> tags;
 
   // Should probably assign this to some "Default" for null safety.
   late Category category = Category.uncategorized();
@@ -32,6 +33,6 @@ class Document {
     category.removeDocument(this); // Make sure we unassign this document first.
 
     this.category = category;
-    category.addDocument(this);
+    category.assignDocument(this);
   }
 }

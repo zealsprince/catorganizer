@@ -92,7 +92,7 @@ class CategoryListViewState extends State<CategoryListView> {
 
               return ListTile(
                   title: Text(category.title),
-                  trailing: Text('(${category.documents.length})'),
+                  trailing: Text('(${category.getDocumets().length})'),
                   leading: MarkedIcon(
                     color: hexARGBToColor(category.color),
                     icon: Icon(getMaterialIcon(category.icon)),

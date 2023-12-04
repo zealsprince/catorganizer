@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Tags extends StatelessWidget {
+class TagRow extends StatelessWidget {
   final int count;
   final double size;
   final List<String> values;
 
-  const Tags({
+  const TagRow({
     super.key,
     this.count = 3,
     this.size = 16,

@@ -59,9 +59,9 @@ class _DocumentInCategoryListViewState
         builder: (context, Widget? child) {
           List<Document> documents = widget.arguments.manifest
               .getCategories()[widget.arguments.id]!
-              .documents
+              .getDocumets()
               .entries
-              .map((documents) => documents.value)
+              .map((document) => document.value)
               .toList();
 
           return ListView.builder(
@@ -77,7 +77,7 @@ class _DocumentInCategoryListViewState
                       title: Text(document.title),
                       subtitle: document.tags.isEmpty
                           ? null
-                          : Tags(
+                          : TagRow(
                               count: 5,
                               size: 12,
                               values: document.tags

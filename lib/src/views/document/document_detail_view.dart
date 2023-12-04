@@ -21,8 +21,7 @@ class DocumentDetailViewArguments {
   });
 }
 
-/// Displays detailed information about a Document.
-class DocumentDetailView extends StatelessWidget {
+class DocumentDetailView extends StatefulWidget {
   final DocumentDetailViewArguments arguments;
 
   const DocumentDetailView({super.key, required this.arguments});
@@ -30,106 +29,122 @@ class DocumentDetailView extends StatelessWidget {
   static const routeName = '/document';
 
   @override
-  Widget build(BuildContext context) {
-    // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
-    Document document = (arguments.manifest.getDocument(arguments.id) != null)
-        ? arguments.manifest.getDocument(arguments.id)!
-        : Document.empty();
+  _DocumentDetailViewState createState() => _DocumentDetailViewState();
+}
 
-    return Scaffold(
-      appBar: AppBar(title: Text(document.title), actions: [
-        IconButton(
-            icon: const Icon(Icons.edit_document),
-            onPressed: () => Navigator.pushNamed(
-                  context,
-                  DocumentEditView.routeName,
-                  arguments: DocumentEditViewArguments(
-                    id: document.uuid,
-                    manifest: arguments.manifest,
-                  ),
-                )),
-      ]),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
-            child: Row(
-              children: [
-                Text(
-                  "Path:",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Row(
-              children: [
-                Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(document.path)),
-              ],
-            ),
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
-            child: Row(
-              children: [
-                Text(
-                  "Category:",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Row(
-              children: [
-                MarkedIcon(
-                  color: hexARGBToColor(document.category.color),
-                  icon: Icon(getMaterialIcon(document.category.icon)),
+/// Displays detailed information about a Document.
+class _DocumentDetailViewState extends State<DocumentDetailView> {
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: widget.arguments.manifest,
+      builder: (context, Widget? child) {
+        // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
+        Document document =
+            (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
+                ? widget.arguments.manifest.getDocument(widget.arguments.id)!
+                : Document.empty();
+
+        return Scaffold(
+          appBar: AppBar(title: Text(document.title), actions: [
+            IconButton(
+                icon: const Icon(Icons.edit_document),
+                onPressed: () => Navigator.pushNamed(
+                      context,
+                      DocumentEditView.routeName,
+                      arguments: DocumentEditViewArguments(
+                        id: document.uuid,
+                        manifest: widget.arguments.manifest,
+                      ),
+                    )),
+          ]),
+          body: Column(
+            children: [
+              // ---------------------------- Path ----------------------------
+              const Padding(
+                padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      "Path:",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
                 ),
-                Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(document.category.title)),
-              ],
-            ),
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8, top: 8),
-            child: Row(
-              children: [
-                Text(
-                  document.tags.isEmpty ? "" : "Tags:",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Row(
-              children: [
-                Tags(
-                  count: 100,
-                  size: 14,
-                  values: document.tags.map((tag) => tag.value).toList(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Row(
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(document.path)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const Divider(),
+              // -------------------------- Category --------------------------
+              const Padding(
+                padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      "Category:",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Row(
+                  children: [
+                    MarkedIcon(
+                      color: hexARGBToColor(document.category.color),
+                      icon: Icon(getMaterialIcon(document.category.icon)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(document.category.title),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              // --------------------------- Tags ---------------------------
+              Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8, top: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      document.tags.isEmpty ? "" : "Tags:",
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Row(
+                  children: [
+                    TagRow(
+                      count: 100,
+                      size: 14,
+                      values: document.tags.map((tag) => tag.value).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

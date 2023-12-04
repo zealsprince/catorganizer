@@ -25,24 +25,28 @@ class Category {
     this.description,
     this.color,
     this.icon,
-    this.documents,
+    this._documents,
   );
 
   Category.uncategorized({
     this.id = uncategorizedIdentifier,
     this.title = uncategorizedTitle,
     this.description = "Documents that have not been assigned to any category",
-    this.color = "ff33aaaa",
+    this.color = "ff6750a4",
     this.icon = 0xf77e,
   });
 
-  Map<String, Document> documents = {};
+  Map<String, Document> _documents = {};
 
-  void addDocument(Document document) {
-    documents[document.uuid] = document;
+  Map<String, Document> getDocumets() {
+    return _documents;
+  }
+
+  void assignDocument(Document document) {
+    _documents[document.uuid] = document;
   }
 
   void removeDocument(Document document) {
-    documents.remove(document.uuid);
+    _documents.remove(document.uuid);
   }
 }

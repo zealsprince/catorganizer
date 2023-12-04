@@ -87,7 +87,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                       title: Text(document.title),
                       subtitle: document.tags.isEmpty
                           ? null
-                          : Tags(
+                          : TagRow(
                               count: 5,
                               size: 12,
                               values: document.tags

@@ -112,7 +112,7 @@ class _CategoryGridViewState extends State<CategoryGridView> {
                         ),
                       ),
                       Text(
-                        '(${category.documents.length})',
+                        '(${category.getDocumets().length})',
                       ),
                     ],
                   ),
