@@ -7,13 +7,13 @@ import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
-import 'package:catorganizer/src/classes/document.dart';
+import 'package:catorganizer/src/models/document.dart';
 
 import 'package:catorganizer/src/views/document/document_edit_view.dart';
 
 class DocumentDetailViewArguments {
   final String id;
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   DocumentDetailViewArguments({
     required this.id,
@@ -40,10 +40,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       listenable: widget.arguments.manifest,
       builder: (context, Widget? child) {
         // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
-        Document document =
+        DocumentModel document =
             (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
                 ? widget.arguments.manifest.getDocument(widget.arguments.id)!
-                : Document.empty();
+                : DocumentModel.empty();
 
         return Scaffold(
           appBar: AppBar(title: Text(document.title), actions: [
@@ -112,8 +112,8 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                 child: Row(
                   children: [
                     MarkedIcon(
-                      color: hexARGBToColor(document.category.color),
-                      icon: Icon(getMaterialIcon(document.category.icon)),
+                      color: document.category.color,
+                      icon: document.category.icon,
                     ),
                     Flexible(
                       child: Padding(
@@ -150,6 +150,37 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   values: document.getTags().map((tag) => tag.value).toList(),
                 ),
               ),
+              // const Divider(),
+              // --------------------------- UUID ---------------------------
+              // const Padding(
+              //   padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
+              //   child: Row(
+              //     children: [
+              //       Text(
+              //         "UUID:",
+              //         style: TextStyle(
+              //           fontSize: 16,
+              //         ),
+              //       )
+              //     ],
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
+              //   child: Row(
+              //     children: [
+              //       Flexible(
+              //         child: Padding(
+              //           padding: const EdgeInsets.only(left: 8),
+              //           child: Text(
+              //             document.uuid,
+              //             overflow: TextOverflow.ellipsis,
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         );

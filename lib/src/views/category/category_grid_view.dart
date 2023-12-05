@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:catorganizer/src/helpers/helpers.dart';
 
-import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/models/category.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
@@ -13,7 +13,7 @@ import 'package:catorganizer/src/views/document/document_in_category_list_view.d
 
 /// Displays a grid of categories.
 class CategoryGridView extends StatefulWidget {
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   const CategoryGridView({super.key, required this.manifest});
 
@@ -66,7 +66,7 @@ class _CategoryGridViewState extends State<CategoryGridView> {
       body: ListenableBuilder(
         listenable: widget.manifest,
         builder: (context, Widget? child) {
-          List<Category> categoriesList = widget.manifest
+          List<CategoryModel> categoriesList = widget.manifest
               .getCategories()
               .entries
               .map((category) => category.value)
@@ -74,13 +74,13 @@ class _CategoryGridViewState extends State<CategoryGridView> {
 
           List<Widget> children = [];
 
-          for (Category category in categoriesList) {
+          for (CategoryModel category in categoriesList) {
             children.add(
               InkWell(
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
-                hoverColor: hexARGBToColor(category.color).withAlpha(0x11),
-                splashColor: hexARGBToColor(category.color).withAlpha(0x44),
-                highlightColor: hexARGBToColor(category.color).withAlpha(0x33),
+                hoverColor: category.color.withAlpha(0x11),
+                splashColor: category.color.withAlpha(0x44),
+                highlightColor: category.color.withAlpha(0x33),
                 onTap: () {
                   // Navigate to the details page. If the user leaves and returns to
                   // the app after it has been killed while running in the
@@ -94,15 +94,14 @@ class _CategoryGridViewState extends State<CategoryGridView> {
                 },
                 child: Card(
                   color: const Color(0x00000000),
-                  surfaceTintColor:
-                      hexARGBToColor(category.color).withAlpha(0x44),
+                  surfaceTintColor: category.color.withAlpha(0x44),
                   shadowColor: const Color(0x22000000),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        getMaterialIcon(category.icon),
-                        color: hexARGBToColor(category.color),
+                        category.icon.icon,
+                        color: category.color,
                         size: 64,
                       ),
                       Text(

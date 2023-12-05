@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:catorganizer/src/helpers/helpers.dart';
 
-import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/models/category.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
@@ -14,7 +14,7 @@ import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
 class CategoryListView extends StatefulWidget {
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   const CategoryListView({super.key, required this.manifest});
 
@@ -75,7 +75,7 @@ class CategoryListViewState extends State<CategoryListView> {
       body: ListenableBuilder(
         listenable: widget.manifest,
         builder: (context, Widget? child) {
-          List<Category> categoriesList = widget.manifest
+          List<CategoryModel> categoriesList = widget.manifest
               .getCategories()
               .entries
               .map((category) => category.value)
@@ -94,10 +94,10 @@ class CategoryListViewState extends State<CategoryListView> {
                   title: Text(category.title),
                   trailing: Text('(${category.getDocumets().length})'),
                   leading: MarkedIcon(
-                    color: hexARGBToColor(category.color),
-                    icon: Icon(getMaterialIcon(category.icon)),
+                    color: category.color,
+                    icon: category.icon,
                   ),
-                  splashColor: hexARGBToColor(category.color).withAlpha(0x11),
+                  splashColor: category.color.withAlpha(0x11),
                   onTap: () {
                     // Navigate to the details page. If the user leaves and returns to
                     // the app after it has been killed while running in the

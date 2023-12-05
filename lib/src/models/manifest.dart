@@ -1,13 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 
-import 'package:catorganizer/src/classes/category.dart';
-import 'package:catorganizer/src/classes/document.dart';
-import 'package:catorganizer/src/classes/tag.dart';
-import 'package:flutter/material.dart';
+import 'package:catorganizer/src/models/category.dart';
+import 'package:catorganizer/src/models/document.dart';
+import 'package:catorganizer/src/models/tag.dart';
 
-class Manifest extends ChangeNotifier {
-  final Map<String, Category> _categories = {};
-  final Map<String, Document> _documents = <String, Document>{};
+class ManifestModel extends ChangeNotifier {
+  final Map<String, CategoryModel> _categories = {};
+  final Map<String, DocumentModel> _documents = <String, DocumentModel>{};
 
   Future<void> readManifest() async {
     notifyListeners();
@@ -24,85 +24,94 @@ class Manifest extends ChangeNotifier {
   }
 
   Future<void> initializeDummy() async {
-    _categories[Category.uncategorizedIdentifier] = Category.uncategorized();
+    CategoryModel defaultCategory = CategoryModel.uncategorized();
 
-    _documents["0"] = Document(
-      "0",
-      "Test A Document",
+    // Assign the dummy default category.
+    _categories[CategoryModel.uncategorizedIdentifier] = defaultCategory;
+
+    setDocument(DocumentModel(
       "/testA.pdf",
-      <Tag>[const Tag("shared")],
-    );
+      "Test A Document",
+      <TagModel>[const TagModel("shared")],
+      defaultCategory,
+    ));
 
-    _documents["1"] = Document(
-      "1",
-      "Test B Document",
+    setDocument(DocumentModel(
       "/testB.pdf",
-      <Tag>[const Tag("shared"), const Tag("unique")],
-    );
+      "Test B Document",
+      <TagModel>[const TagModel("shared"), const TagModel("unique")],
+      defaultCategory,
+    ));
 
-    _documents["2"] = Document(
-      "2",
-      "Test C Document",
+    setDocument(DocumentModel(
       "/testC.pdf",
-      <Tag>[],
-    );
+      "Test C Document",
+      <TagModel>[],
+      defaultCategory,
+    ));
 
     for (final key in _documents.keys) {
       // Assign to a variable for easier reading.
-      Document document = _documents[key]!;
+      DocumentModel document = _documents[key]!;
 
       // Sub-par testing implementation...
-      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
-      document.assign(_categories[Category.uncategorizedIdentifier]!);
+      _categories[CategoryModel.uncategorizedIdentifier]!
+          .assignDocument(document);
+      document
+          .assignCategory(_categories[CategoryModel.uncategorizedIdentifier]!);
     }
   }
 
-  Manifest() {
+  ManifestModel() {
     initializeDummy();
   }
 
-  Manifest.withDocuments(Map<String, Document> documents) {
-    _categories[Category.uncategorizedIdentifier] = Category.uncategorized();
+  ManifestModel.withDocuments(Map<String, DocumentModel> documents) {
+    _categories[CategoryModel.uncategorizedIdentifier] =
+        CategoryModel.uncategorized();
 
     for (final key in _documents.keys) {
       // Assign to a variable for easier reading.
-      Document document = _documents[key]!;
+      DocumentModel document = _documents[key]!;
 
       // Sub-par testing implementation...
-      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
-      document.assign(_categories[Category.uncategorizedIdentifier]!);
+      _categories[CategoryModel.uncategorizedIdentifier]!
+          .assignDocument(document);
+
+      document
+          .assignCategory(_categories[CategoryModel.uncategorizedIdentifier]!);
     }
   }
 
-  Map<String, Category> getCategories() {
+  Map<String, CategoryModel> getCategories() {
     return _categories;
   }
 
-  Category? getCategory(String id) {
+  CategoryModel? getCategory(String id) {
     return _categories[id];
   }
 
-  Map<String, Document> getDocuments() {
-    return _documents;
-  }
-
-  Document? getDocument(String id) {
-    return _documents[id];
-  }
-
-  Future<void> setCategory(Category category) async {
+  Future<void> setCategory(CategoryModel category) async {
     _categories[category.id] = category;
 
     await writeManifest();
   }
 
-  Future<void> deleteCategory(Category category) async {
+  Future<void> deleteCategory(CategoryModel category) async {
     _categories.remove(category.id);
 
     await writeManifest();
   }
 
-  Future<void> setDocument(Document document) async {
+  Map<String, DocumentModel> getDocuments() {
+    return _documents;
+  }
+
+  DocumentModel? getDocument(String id) {
+    return _documents[id];
+  }
+
+  Future<void> setDocument(DocumentModel document) async {
     _documents[document.uuid] = document;
 
     document.category.assignDocument(document);
@@ -110,7 +119,7 @@ class Manifest extends ChangeNotifier {
     await writeManifest();
   }
 
-  Future<void> deleteDocument(Document document) async {
+  Future<void> deleteDocument(DocumentModel document) async {
     _documents.remove(document.uuid);
 
     document.category.removeDocument(document);
@@ -124,19 +133,19 @@ class Manifest extends ChangeNotifier {
     files = await openFiles();
 
     for (final file in files) {
-      Document document = Document.withCategory(
-        file.path,
+      DocumentModel document = DocumentModel(
         file.path,
         file.path,
         [],
-        _categories[Category.uncategorizedIdentifier]!,
+        _categories[CategoryModel.uncategorizedIdentifier]!,
       );
 
       // Append this new document to the global document pool.
       _documents[document.uuid] = document;
 
       // The next step is to assign them to a category as well.
-      _categories[Category.uncategorizedIdentifier]!.assignDocument(document);
+      _categories[CategoryModel.uncategorizedIdentifier]!
+          .assignDocument(document);
     }
 
     await writeManifest();
@@ -148,13 +157,12 @@ class Manifest extends ChangeNotifier {
     files = await openFiles();
 
     for (final file in files) {
-      Document document = Document.withCategory(
-        file.path,
+      DocumentModel document = DocumentModel(
         file.path,
         file.path,
         [],
         getCategory(id) == null
-            ? _categories[Category.uncategorizedIdentifier]!
+            ? _categories[CategoryModel.uncategorizedIdentifier]!
             : getCategory(id)!,
       );
 

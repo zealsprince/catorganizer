@@ -5,7 +5,7 @@ import 'package:catorganizer/src/helpers/helpers.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
-import 'package:catorganizer/src/classes/document.dart';
+import 'package:catorganizer/src/models/document.dart';
 
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
@@ -13,7 +13,7 @@ import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
 
 class DocumentListView extends StatefulWidget {
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   const DocumentListView({
     super.key,
@@ -68,7 +68,7 @@ class _DocumentListViewState extends State<DocumentListView> {
         listenable: widget.manifest,
         builder: (context, Widget? child) {
           // We'll want to organize our documents here for easier handling.
-          List<Document> documents = widget.manifest
+          List<DocumentModel> documents = widget.manifest
               .getDocuments()
               .entries
               .map((document) => document.value)
@@ -96,7 +96,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                   .toList(),
                             ),
                       leading: MarkedIcon(
-                        color: hexARGBToColor(document.category.color),
+                        color: document.category.color,
                         icon: const Icon(Icons.article_rounded),
                       ),
                       trailing: IconButton(

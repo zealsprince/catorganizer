@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
-import 'package:catorganizer/src/classes/category.dart';
+import 'package:catorganizer/src/models/category.dart';
 
 import 'package:catorganizer/src/views/settings/settings_controller.dart';
 import 'package:catorganizer/src/views/settings/settings_view.dart';
@@ -20,7 +20,7 @@ class Catorganizer extends StatelessWidget {
       {super.key, required this.settingsController, required this.manifest});
 
   final SettingsController settingsController;
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   @override
   Widget build(BuildContext context) {
@@ -80,12 +80,12 @@ class Catorganizer extends StatelessWidget {
 
                   case CategoryDetailView.routeName:
                     return CategoryDetailView(
-                      category: routeSettings.arguments as Category,
+                      category: routeSettings.arguments as CategoryModel,
                     );
 
                   case DocumentListView.routeName:
                     return DocumentListView(
-                      manifest: routeSettings.arguments as Manifest,
+                      manifest: routeSettings.arguments as ManifestModel,
                     );
 
                   case DocumentInCategoryListView.routeName:

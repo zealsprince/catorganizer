@@ -3,7 +3,7 @@ import 'package:open_app_file/open_app_file.dart';
 
 import 'package:catorganizer/src/helpers/helpers.dart';
 
-import 'package:catorganizer/src/classes/document.dart';
+import 'package:catorganizer/src/models/document.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
@@ -14,7 +14,7 @@ import 'package:catorganizer/src/views/document/document_detail_view.dart';
 
 class DocumentInCategoryListViewArguments {
   final String id;
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   DocumentInCategoryListViewArguments({
     required this.id,
@@ -57,7 +57,7 @@ class _DocumentInCategoryListViewState
       body: ListenableBuilder(
         listenable: widget.arguments.manifest,
         builder: (context, Widget? child) {
-          List<Document> documents = widget.arguments.manifest
+          List<DocumentModel> documents = widget.arguments.manifest
               .getCategories()[widget.arguments.id]!
               .getDocumets()
               .entries
@@ -86,7 +86,7 @@ class _DocumentInCategoryListViewState
                                   .toList(),
                             ),
                       leading: MarkedIcon(
-                        color: hexARGBToColor(document.category.color),
+                        color: document.category.color,
                         icon: const Icon(Icons.article_rounded),
                       ),
                       trailing: IconButton(

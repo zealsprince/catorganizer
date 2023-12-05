@@ -44,7 +44,7 @@ class TagRow extends StatelessWidget {
               padding: EdgeInsets.all(size / 2),
               child: Text(
                 '#${values[i]}',
-                style: TextStyle(fontSize: size * 1),
+                style: TextStyle(fontSize: size),
               ),
             ),
           ),

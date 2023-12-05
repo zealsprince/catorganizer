@@ -4,21 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:catorganizer/src/helpers/helpers.dart';
 
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
-import 'package:catorganizer/src/common_widgets/tag_row.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
-import 'package:catorganizer/src/classes/document.dart';
-import 'package:catorganizer/src/classes/category.dart';
-import 'package:catorganizer/src/classes/tag.dart';
+import 'package:catorganizer/src/models/document.dart';
+import 'package:catorganizer/src/models/category.dart';
+import 'package:catorganizer/src/models/tag.dart';
 
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
-import 'package:flutter/services.dart';
 
 class DocumentEditViewArguments {
   final String id;
-  final Manifest manifest;
+  final ManifestModel manifest;
 
   DocumentEditViewArguments({
     required this.id,
@@ -26,10 +24,51 @@ class DocumentEditViewArguments {
   });
 }
 
+// This custom class handles the tag adding / removing dialog as we don't want
+// to bind directly to the document as this would manipulate it before
+// performing the save action.
+final class _DocumentEditViewTagsController extends ChangeNotifier {
+  List<TagModel> tags = [];
+
+  bool addTag(TagModel tag) {
+    for (TagModel existingTag in tags) {
+      if (existingTag.value == tag.value) {
+        return false;
+      }
+    }
+
+    tags.add(tag);
+
+    notifyListeners();
+
+    return true;
+  }
+
+  bool removeTag(TagModel tag) {
+    for (int i = 0; i < tags.length; i++) {
+      if (tags[i].value == tag.value) {
+        tags.removeAt(i);
+
+        notifyListeners();
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+}
+
 class DocumentEditView extends StatefulWidget {
   final DocumentEditViewArguments arguments;
 
-  const DocumentEditView({super.key, required this.arguments});
+  DocumentModel _document = DocumentModel.empty();
+
+  DocumentEditView({super.key, required this.arguments}) {
+    _document = (arguments.manifest.getDocument(arguments.id) != null)
+        ? arguments.manifest.getDocument(arguments.id)!
+        : DocumentModel.empty();
+  }
 
   static const routeName = '/document-edit';
 
@@ -39,33 +78,39 @@ class DocumentEditView extends StatefulWidget {
 
 /// Displays detailed information about a Document.
 class _DocumentEditViewState extends State<DocumentEditView> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _tagController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController tagController = TextEditingController();
+  final _DocumentEditViewTagsController tagsController =
+      _DocumentEditViewTagsController();
 
-  void _changeCategory(Document document, Category category) {
-    document.category = category;
+  void changeCategory(CategoryModel category) {
+    widget._document.category = category;
   }
 
-  void _addTag(String text, Document document) {
-    // TODO: Make tags only apply on save.
-    if (text == "") return;
+  void addTag(TagModel tag) {
+    if (tag.value == "") return;
 
-    _tagController.text = ""; // Reset the tag controller input.
-
-    document.addTag(Tag(text.toLowerCase()));
-
-    widget.arguments.manifest.setDocument(document);
+    if (tagsController.addTag(tag)) {
+      tagController.text = ""; // Reset the tag controller input.
+    }
   }
 
-  void _save(BuildContext context, Document document) {
-    document.title = _titleController.text;
+  void removeTag(TagModel tag) {
+    if (tagsController.removeTag(tag)) {
+      tagController.text = ""; // Reset the tag controller input.
+    }
+  }
 
-    widget.arguments.manifest.setDocument(document);
+  void save(BuildContext context) {
+    widget._document.title = titleController.text;
+    widget._document.setTags(tagsController.tags);
+
+    widget.arguments.manifest.setDocument(widget._document);
 
     Navigator.pop(context);
   }
 
-  void _delete(BuildContext context, Document document) {
+  void delete(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext ctx) {
@@ -76,7 +121,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
             // The "Yes" button
             TextButton(
                 onPressed: () {
-                  widget.arguments.manifest.deleteDocument(document);
+                  widget.arguments.manifest.deleteDocument(widget._document);
 
                   Navigator.popUntil(
                     context,
@@ -101,16 +146,11 @@ class _DocumentEditViewState extends State<DocumentEditView> {
 
   @override
   Widget build(BuildContext context) {
-    // Assign the document from the manifest by it's ID if it exists. Otherwise use an empty document.
-    Document document =
-        (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
-            ? widget.arguments.manifest.getDocument(widget.arguments.id)!
-            : Document.empty();
+    titleController.text = widget._document.title;
 
-    _titleController.text = document.title;
-
-    List<DropdownMenuItem<Category>> categoryMenuItems = [];
-    for (Category category in widget.arguments.manifest
+    // Construct the category dropdown menu items.
+    List<DropdownMenuItem<CategoryModel>> categoryMenuItems = [];
+    for (CategoryModel category in widget.arguments.manifest
         .getCategories()
         .entries
         .map((category) => category.value)
@@ -120,21 +160,26 @@ class _DocumentEditViewState extends State<DocumentEditView> {
         child: Row(
           children: [
             MarkedIcon(
-              color: hexARGBToColor(document.category.color),
-              icon: Icon(getMaterialIcon(document.category.icon)),
+              color: widget._document.category.color,
+              icon: widget._document.category.icon,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: Text(document.category.title),
+              child: Text(widget._document.category.title),
             ),
           ],
         ),
       ));
     }
 
+    // Create tags in the tags controller from the document by value.
+    for (TagModel tag in widget._document.getTags()) {
+      tagsController.addTag(TagModel(tag.value));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editing: ${document.title}'),
+        title: Text('Editing: ${widget._document.title}'),
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -157,7 +202,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
             child: TextField(
-              controller: _titleController,
+              controller: titleController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Document Title',
@@ -181,11 +226,11 @@ class _DocumentEditViewState extends State<DocumentEditView> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
-            child: DropdownButton<Category>(
+            child: DropdownButton<CategoryModel>(
               alignment: Alignment.topLeft,
               isExpanded: true,
-              value: document.category,
-              onChanged: (category) => _changeCategory(document, category!),
+              value: widget._document.category,
+              onChanged: (category) => changeCategory(category!),
               items: categoryMenuItems,
             ),
           ),
@@ -207,13 +252,46 @@ class _DocumentEditViewState extends State<DocumentEditView> {
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
             child: ListenableBuilder(
-              listenable: widget.arguments.manifest,
-              builder: (context, Widget? child) => TagRow(
-                count: 100,
-                size: 14,
-                values: document.getTags().map((tag) => tag.value).toList(),
-              ),
-            ),
+                listenable: tagsController,
+                builder: (context, Widget? child) {
+                  List<Widget> tagItems = []; // Prepare our children list.
+
+                  // Iterate over values and build out the tag widgets accordingly.
+                  for (TagModel tag in tagsController.tags) {
+                    tagItems.add(
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4, bottom: 8),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(32)),
+                              color: Color(0x11000000)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () => removeTag(tag),
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 16),
+                                  child: Text(
+                                    '#${tag.value}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Wrap(children: tagItems);
+                }),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
@@ -233,8 +311,8 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                         RegExp(r'[a-zA-Z0-9\-]'),
                       ),
                     ],
-                    controller: _tagController,
-                    onSubmitted: (text) => _addTag(text, document),
+                    controller: tagController,
+                    onSubmitted: (text) => addTag(TagModel(text)),
                     style: const TextStyle(
                       height: 1,
                       fontSize: 14,
@@ -243,7 +321,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                       hintText: 'Add a tag',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.add, size: 16),
-                        onPressed: () => _addTag(_tagController.text, document),
+                        onPressed: () => addTag(TagModel(tagController.text)),
                       ),
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(
@@ -265,7 +343,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ElevatedButton(
-                    onPressed: () => _save(context, document),
+                    onPressed: () => save(context),
                     child: const Text("Save Changes"),
                   ),
                 ),
@@ -278,7 +356,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                       const Color(0x44FF0000),
                     ),
                   ),
-                  onPressed: () => _delete(context, document),
+                  onPressed: () => delete(context),
                   child: const Text("Delete Document"),
                 ),
               ],
