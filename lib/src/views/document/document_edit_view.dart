@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:catorganizer/src/helpers/helpers.dart';
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -30,6 +29,7 @@ class DocumentEditViewArguments {
 final class _DocumentEditViewTagsController extends ChangeNotifier {
   List<TagModel> tags = [];
 
+  // Return a boolean to confirm if a tag was added without duplication.
   bool addTag(TagModel tag) {
     for (TagModel existingTag in tags) {
       if (existingTag.value == tag.value) {
@@ -44,6 +44,7 @@ final class _DocumentEditViewTagsController extends ChangeNotifier {
     return true;
   }
 
+  // Return a boolean to confirm if a tag was removed.
   bool removeTag(TagModel tag) {
     for (int i = 0; i < tags.length; i++) {
       if (tags[i].value == tag.value) {
@@ -79,7 +80,10 @@ class DocumentEditView extends StatefulWidget {
 /// Displays detailed information about a Document.
 class _DocumentEditViewState extends State<DocumentEditView> {
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController tagController = TextEditingController();
+  final TextEditingController tagCreateController = TextEditingController();
+  final SingleValueDropDownController tagDropdownController =
+      SingleValueDropDownController();
+
   final _DocumentEditViewTagsController tagsController =
       _DocumentEditViewTagsController();
 
@@ -87,20 +91,18 @@ class _DocumentEditViewState extends State<DocumentEditView> {
     widget._document.category = category;
   }
 
+  // We have to mask our tag controller function here to additionally get access
+  // to the input field form text.
   void addTag(TagModel tag) {
     if (tag.value == "") return;
 
     if (tagsController.addTag(tag)) {
-      tagController.text = ""; // Reset the tag controller input.
+      tagCreateController.text = ""; // Reset the tag controller input.
     }
   }
 
-  void removeTag(TagModel tag) {
-    if (tagsController.removeTag(tag)) {
-      tagController.text = ""; // Reset the tag controller input.
-    }
-  }
-
+  // Modify our document and then update the manifest to propgate changes
+  // across other views. Additionally flag writing of changes.
   void save(BuildContext context) {
     widget._document.title = titleController.text;
     widget._document.setTags(tagsController.tags);
@@ -110,6 +112,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
     Navigator.pop(context);
   }
 
+  // Delete this document with a confirmation dialog and routes pop.
   void delete(BuildContext context) {
     showDialog(
       context: context,
@@ -170,6 +173,27 @@ class _DocumentEditViewState extends State<DocumentEditView> {
           ],
         ),
       ));
+    }
+
+    List<DropDownValueModel> tagDropdownItems = [];
+    for (DocumentModel document
+        in widget.arguments.manifest.getDocuments().values) {
+      for (TagModel tag in document.getTags()) {
+        bool found = false;
+
+        for (DropDownValueModel item in tagDropdownItems) {
+          if (item.value == tag.value) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          tagDropdownItems.add(
+            DropDownValueModel(name: '#${tag.value}', value: tag.value),
+          );
+        }
+      }
     }
 
     // Create tags in the tags controller from the document by value.
@@ -250,7 +274,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            padding: const EdgeInsets.only(left: 16),
             child: ListenableBuilder(
                 listenable: tagsController,
                 builder: (context, Widget? child) {
@@ -272,7 +296,8 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  onPressed: () => removeTag(tag),
+                                  onPressed: () =>
+                                      tagsController.removeTag(tag),
                                   icon: const Icon(Icons.remove_circle_outline),
                                 ),
                                 Padding(
@@ -293,39 +318,79 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                   return Wrap(children: tagItems);
                 }),
           ),
+          // ------------------------- Tags Dropdown ------------------------
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
             child: Row(
               children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints.tight(
-                    const Size(240, 64),
-                  ),
-                  child: TextField(
-                    maxLength: 24,
-                    textAlign: TextAlign.left,
-                    textAlignVertical: TextAlignVertical.center,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'[a-zA-Z0-9\-]'),
-                      ),
-                    ],
-                    controller: tagController,
-                    onSubmitted: (text) => addTag(TagModel(text)),
-                    style: const TextStyle(
-                      height: 1,
-                      fontSize: 14,
+                ListenableBuilder(
+                  listenable: tagDropdownController,
+                  builder: (context, Widget? child) => ConstrainedBox(
+                    constraints: BoxConstraints.tight(
+                      const Size(308, 42),
                     ),
-                    decoration: InputDecoration(
-                      hintText: 'Add a tag',
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add, size: 16),
-                        onPressed: () => addTag(TagModel(tagController.text)),
+                    child: DropDownTextField(
+                      controller: tagDropdownController,
+                      clearOption: false,
+                      enableSearch: true,
+                      dropdownColor: Colors.white,
+                      textFieldDecoration: const InputDecoration(
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                        hintText: "Select an existing tag",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(36),
+                          ),
+                        ),
                       ),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(36),
+                      dropDownList: tagDropdownItems,
+                      onChanged: (value) {
+                        tagDropdownController.clearDropDown();
+
+                        DropDownValueModel v = value as DropDownValueModel;
+
+                        addTag(TagModel(v.value));
+                      },
+                    ),
+                  ),
+                ),
+                // ----------------------- Create Tag ----------------------
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 8),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints.tight(
+                      const Size(240, 64),
+                    ),
+                    child: TextField(
+                      maxLength: 24,
+                      textAlign: TextAlign.left,
+                      textAlignVertical: TextAlignVertical.center,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9\-]'),
+                        ),
+                      ],
+                      controller: tagCreateController,
+                      onSubmitted: (text) => addTag(TagModel(text)),
+                      style: const TextStyle(
+                        height: 1,
+                        fontSize: 14,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Create a tag',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.add, size: 16),
+                          onPressed: () =>
+                              addTag(TagModel(tagCreateController.text)),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(36),
+                          ),
                         ),
                       ),
                     ),

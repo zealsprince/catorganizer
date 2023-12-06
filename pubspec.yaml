@@ -15,6 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   desktop_drop: ^0.4.4
+  dropdown_textfield: ^1.0.8
   file_selector: ^1.0.1
   open_app_file: ^4.0.2
   pulsator: ^1.0.0
