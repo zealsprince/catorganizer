@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_app_file/open_app_file.dart';
 
-import 'package:catorganizer/src/helpers/helpers.dart';
-
 import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/models/document.dart';
@@ -23,7 +21,7 @@ class DocumentListView extends StatefulWidget {
   static const routeName = '/documents';
 
   @override
-  _DocumentListViewState createState() => _DocumentListViewState();
+  State<DocumentListView> createState() => _DocumentListViewState();
 }
 
 /// Displays a list of documents.
@@ -84,7 +82,12 @@ class _DocumentListViewState extends State<DocumentListView> {
                 constraints: const BoxConstraints(minHeight: 68, maxHeight: 68),
                 child: Center(
                   child: ListTile(
-                      title: Text(document.title),
+                      title: Text(
+                        document.title.length >
+                                52 // Limit the length of titles.
+                            ? '${document.title.substring(0, 49)}...'
+                            : document.title,
+                      ),
                       subtitle: document.getTags().isEmpty
                           ? null
                           : TagRow(

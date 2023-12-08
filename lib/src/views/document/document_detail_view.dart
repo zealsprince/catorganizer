@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:catorganizer/src/helpers/helpers.dart';
-
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -29,7 +27,7 @@ class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document';
 
   @override
-  _DocumentDetailViewState createState() => _DocumentDetailViewState();
+  State<DocumentDetailView> createState() => _DocumentDetailViewState();
 }
 
 /// Displays detailed information about a Document.

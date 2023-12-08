@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:catorganizer/src/helpers/helpers.dart';
-
 import 'package:catorganizer/src/models/category.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
@@ -20,7 +18,7 @@ class CategoryGridView extends StatefulWidget {
   static const routeName = '/category-grid';
 
   @override
-  _CategoryGridViewState createState() => _CategoryGridViewState();
+  State<CategoryGridView> createState() => _CategoryGridViewState();
 }
 
 class _CategoryGridViewState extends State<CategoryGridView> {

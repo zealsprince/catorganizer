@@ -5,7 +5,6 @@ import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
-
 import 'package:catorganizer/src/models/document.dart';
 import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/tag.dart';
@@ -13,20 +12,22 @@ import 'package:catorganizer/src/models/tag.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
-class DocumentEditViewArguments {
-  final String id;
+class DocumentNewViewArguments {
   final ManifestModel manifest;
+  final String path;
+  final CategoryModel? category;
 
-  DocumentEditViewArguments({
-    required this.id,
+  DocumentNewViewArguments({
     required this.manifest,
+    required this.path,
+    this.category,
   });
 }
 
 // This custom class handles the tag adding / removing dialog as we don't want
 // to bind directly to the document as this would manipulate it before
 // performing the save action.
-final class _DocumentEditViewTagsController extends ChangeNotifier {
+final class _DocumentNewViewTagsController extends ChangeNotifier {
   List<TagModel> tags = [];
 
   // Return a boolean to confirm if a tag was added without duplication.
@@ -60,28 +61,28 @@ final class _DocumentEditViewTagsController extends ChangeNotifier {
   }
 }
 
-class DocumentEditView extends StatefulWidget {
-  final DocumentEditViewArguments arguments;
+class DocumentNewView extends StatefulWidget {
+  final DocumentNewViewArguments arguments;
 
-  const DocumentEditView({super.key, required this.arguments});
+  const DocumentNewView({super.key, required this.arguments});
 
-  static const routeName = '/document-edit';
+  static const routeName = '/document-new';
 
   @override
-  State<DocumentEditView> createState() => _DocumentEditViewState();
+  State<DocumentNewView> createState() => _DocumentNewViewState();
 }
 
 /// Displays detailed information about a Document.
-class _DocumentEditViewState extends State<DocumentEditView> {
-  DocumentModel document = DocumentModel.empty();
+class _DocumentNewViewState extends State<DocumentNewView> {
+  final DocumentModel document = DocumentModel.empty();
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController tagCreateController = TextEditingController();
   final SingleValueDropDownController tagDropdownController =
       SingleValueDropDownController();
 
-  final _DocumentEditViewTagsController tagsController =
-      _DocumentEditViewTagsController();
+  final _DocumentNewViewTagsController tagsController =
+      _DocumentNewViewTagsController();
 
   void changeCategory(CategoryModel category) {
     document.category = category;
@@ -145,12 +146,6 @@ class _DocumentEditViewState extends State<DocumentEditView> {
 
   @override
   Widget build(BuildContext context) {
-    // Fetch the document from the manifest by the ID.
-    document =
-        (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
-            ? widget.arguments.manifest.getDocument(widget.arguments.id)!
-            : DocumentModel.empty();
-
     titleController.text = document.title;
 
     // Construct the category dropdown menu items.
@@ -373,15 +368,10 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
-                          RegExp(r'[a-zA-Z0-9\-\s]'),
+                          RegExp(r'[a-zA-Z0-9\-]'),
                         ),
                       ],
                       controller: tagCreateController,
-                      onChanged: (text) => tagCreateController.text =
-                          tagCreateController
-                              .text // Make sure we can't add extra whitespace.
-                              .replaceAll(RegExp(r'\s+'), '-')
-                              .replaceAll(RegExp(r'-+'), '-'),
                       onSubmitted: (text) => addTag(TagModel(text)),
                       style: const TextStyle(
                         height: 1,
@@ -389,7 +379,6 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'Create a tag',
-                        prefix: Text('#'),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.add, size: 16),
                           onPressed: () =>

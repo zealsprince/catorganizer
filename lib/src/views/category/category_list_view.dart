@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:catorganizer/src/helpers/helpers.dart';
-
 import 'package:catorganizer/src/models/category.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
@@ -21,11 +19,11 @@ class CategoryListView extends StatefulWidget {
   static const routeName = '/category-list';
 
   @override
-  CategoryListViewState createState() => CategoryListViewState();
+  State<CategoryListView> createState() => _CategoryListViewState();
 }
 
 /// Displays a list of categories.
-class CategoryListViewState extends State<CategoryListView> {
+class _CategoryListViewState extends State<CategoryListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
