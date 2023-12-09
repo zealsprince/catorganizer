@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:open_app_file/open_app_file.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
@@ -9,6 +10,7 @@ import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
+import 'package:catorganizer/src/views/document/document_new_view.dart';
 
 class DocumentListView extends StatefulWidget {
   final ManifestModel manifest;
@@ -33,8 +35,21 @@ class _DocumentListViewState extends State<DocumentListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () =>
-                widget.manifest.addUncategorizedDocumentsSelection(),
+            onPressed: () {
+              // It feels like this should be standardized into a generic method call.
+              openFile().then(
+                (file) {
+                  if (file != null) {
+                    Navigator.pushNamed(
+                      context,
+                      DocumentNewView.routeName,
+                      arguments: DocumentNewViewArguments(
+                          manifest: widget.manifest, file: file),
+                    );
+                  }
+                },
+              );
+            },
           ),
         ],
         // Search bar

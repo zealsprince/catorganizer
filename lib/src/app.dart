@@ -1,3 +1,4 @@
+import 'package:catorganizer/src/views/document/document_new_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -98,6 +99,12 @@ class Catorganizer extends StatelessWidget {
                     return DocumentDetailView(
                       arguments: routeSettings.arguments
                           as DocumentDetailViewArguments,
+                    );
+
+                  case DocumentNewView.routeName:
+                    return DocumentNewView(
+                      arguments:
+                          routeSettings.arguments as DocumentNewViewArguments,
                     );
 
                   case DocumentEditView.routeName:

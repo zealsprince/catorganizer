@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:file_selector/file_selector.dart';
 
 import 'package:catorganizer/src/models/category.dart';
-
 import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
+import 'package:catorganizer/src/views/document/document_new_view.dart';
 
 /// Displays a grid of categories.
 class CategoryGridView extends StatefulWidget {
@@ -47,8 +48,21 @@ class _CategoryGridViewState extends State<CategoryGridView> {
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () =>
-                widget.manifest.addUncategorizedDocumentsSelection(),
+            onPressed: () {
+              // It feels like this should be standardized into a generic method call.
+              openFile().then((file) {
+                if (file != null) {
+                  Navigator.pushNamed(
+                    context,
+                    DocumentNewView.routeName,
+                    arguments: DocumentNewViewArguments(
+                      manifest: widget.manifest,
+                      file: file,
+                    ),
+                  );
+                }
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -87,7 +101,7 @@ class _CategoryGridViewState extends State<CategoryGridView> {
                     context,
                     DocumentInCategoryListView.routeName,
                     arguments: DocumentInCategoryListViewArguments(
-                        id: category.id, manifest: widget.manifest),
+                        category: category, manifest: widget.manifest),
                   );
                 },
                 child: Card(

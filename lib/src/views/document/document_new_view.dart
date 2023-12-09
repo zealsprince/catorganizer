@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
-
-import 'package:catorganizer/src/common_widgets/marked_icon.dart';
+import 'package:file_selector/file_selector.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 import 'package:catorganizer/src/models/document.dart';
 import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/tag.dart';
 
+import 'package:catorganizer/src/common_widgets/marked_icon.dart';
+
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 
 class DocumentNewViewArguments {
   final ManifestModel manifest;
-  final String path;
+  final XFile file;
   final CategoryModel? category;
 
   DocumentNewViewArguments({
     required this.manifest,
-    required this.path,
+    required this.file,
     this.category,
   });
 }
@@ -146,6 +147,20 @@ class _DocumentNewViewState extends State<DocumentNewView> {
 
   @override
   Widget build(BuildContext context) {
+    // Make sure to build the widget from the supplied file.
+    document.path = widget.arguments.file.path;
+
+    // Remove the file extension and path for the placeholder title.
+    document.title = widget.arguments.file.path
+        .replaceAll(
+          RegExp(r'\..+$'),
+          '',
+        )
+        .replaceAll(
+          RegExp(r'.+[\\\/]'),
+          '',
+        );
+
     titleController.text = document.title;
 
     // Construct the category dropdown menu items.
@@ -200,12 +215,43 @@ class _DocumentNewViewState extends State<DocumentNewView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editing: ${document.title}'),
+        title: const Text('New document'),
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ---------------------------- Path ----------------------------
+          const Padding(
+            padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
+            child: Row(
+              children: [
+                Text(
+                  "Path:",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Text(
+                      document.path,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
           // ---------------------- Title text field ----------------------
           const Padding(
             padding: EdgeInsets.only(left: 16, bottom: 8, top: 8),
@@ -250,7 +296,7 @@ class _DocumentNewViewState extends State<DocumentNewView> {
             child: DropdownButton<CategoryModel>(
               alignment: Alignment.topLeft,
               isExpanded: true,
-              value: document.category,
+              value: widget.arguments.category,
               onChanged: (category) => changeCategory(category!),
               items: categoryMenuItems,
             ),

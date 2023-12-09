@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:file_selector/file_selector.dart';
 
 import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
@@ -123,55 +122,6 @@ class ManifestModel extends ChangeNotifier {
     _documents.remove(document.uuid);
 
     document.category.removeDocument(document);
-
-    await writeManifest();
-  }
-
-  Future<void> addUncategorizedDocumentsSelection() async {
-    late List<XFile> files;
-
-    files = await openFiles();
-
-    for (final file in files) {
-      DocumentModel document = DocumentModel(
-        file.path,
-        file.path,
-        [],
-        _categories[CategoryModel.uncategorizedIdentifier]!,
-      );
-
-      // Append this new document to the global document pool.
-      _documents[document.uuid] = document;
-
-      // The next step is to assign them to a category as well.
-      _categories[CategoryModel.uncategorizedIdentifier]!
-          .assignDocument(document);
-    }
-
-    await writeManifest();
-  }
-
-  Future<void> addCategorizedDocumentsSelection(String id) async {
-    late List<XFile> files;
-
-    files = await openFiles();
-
-    for (final file in files) {
-      DocumentModel document = DocumentModel(
-        file.path,
-        file.path,
-        [],
-        getCategory(id) == null
-            ? _categories[CategoryModel.uncategorizedIdentifier]!
-            : getCategory(id)!,
-      );
-
-      // Append this new document to the global document pool.
-      _documents[document.uuid] = document;
-
-      // The next step is to assign them to a category as well.
-      _categories[id]!.assignDocument(document);
-    }
 
     await writeManifest();
   }

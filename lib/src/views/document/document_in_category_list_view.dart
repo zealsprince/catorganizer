@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:open_app_file/open_app_file.dart';
+import 'package:file_selector/file_selector.dart';
 
+import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
-
 import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
+import 'package:catorganizer/src/views/document/document_new_view.dart';
 
 class DocumentInCategoryListViewArguments {
-  final String id;
   final ManifestModel manifest;
+  final CategoryModel category;
 
   DocumentInCategoryListViewArguments({
-    required this.id,
     required this.manifest,
+    required this.category,
   });
 }
 
@@ -44,21 +46,32 @@ class _DocumentInCategoryListViewState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.arguments.manifest
-              .getCategories()[widget.arguments.id]!
-              .title),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => widget.arguments.manifest
-                  .addCategorizedDocumentsSelection(widget.arguments.id),
-            ),
-          ]),
+        title: Text(widget.arguments.category.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              // It feels like this should be standardized into a generic method call.
+              openFile().then((file) {
+                if (file != null) {
+                  Navigator.pushNamed(
+                    context,
+                    DocumentNewView.routeName,
+                    arguments: DocumentNewViewArguments(
+                        manifest: widget.arguments.manifest,
+                        category: widget.arguments.category,
+                        file: file),
+                  );
+                }
+              });
+            },
+          )
+        ],
+      ),
       body: ListenableBuilder(
         listenable: widget.arguments.manifest,
         builder: (context, Widget? child) {
-          List<DocumentModel> documents = widget.arguments.manifest
-              .getCategories()[widget.arguments.id]!
+          List<DocumentModel> documents = widget.arguments.category
               .getDocumets()
               .entries
               .map((document) => document.value)
