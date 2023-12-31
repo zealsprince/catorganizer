@@ -121,7 +121,7 @@ class _DocumentInCategoryListViewState
                           context,
                           DocumentDetailView.routeName,
                           arguments: DocumentDetailViewArguments(
-                            id: document.uuid,
+                            id: document.getUUID(),
                             manifest: widget.arguments.manifest,
                           ),
                         );

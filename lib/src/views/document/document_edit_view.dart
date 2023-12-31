@@ -389,7 +389,7 @@ class _DocumentEditViewState extends State<DocumentEditView> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'Create a tag',
-                        prefix: Text('#'),
+                        prefix: const Text('#'),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.add, size: 16),
                           onPressed: () =>

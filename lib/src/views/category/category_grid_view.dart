@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:file_selector/file_selector.dart';
 
 import 'package:catorganizer/src/models/category.dart';
@@ -78,6 +79,12 @@ class _CategoryGridViewState extends State<CategoryGridView> {
       body: ListenableBuilder(
         listenable: widget.manifest,
         builder: (context, Widget? child) {
+          if (widget.manifest.error != "") {
+            return Center(
+              child: Text("That's not good: ${widget.manifest.error}"),
+            );
+          }
+
           List<CategoryModel> categoriesList = widget.manifest
               .getCategories()
               .entries

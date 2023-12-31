@@ -14,12 +14,13 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  cool_alert: ^2.0.1
   desktop_drop: ^0.4.4
   dropdown_textfield: ^1.0.8
   file_selector: ^1.0.1
   open_app_file: ^4.0.2
   path_provider: ^2.1.1
-  path: ^1.9.0
+  path: ^1.8.3
   pulsator: ^1.0.0
   uuid: ^4.2.1
   window_manager: ^0.3.7

@@ -131,7 +131,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                           context,
                           DocumentDetailView.routeName,
                           arguments: DocumentDetailViewArguments(
-                            id: document.uuid,
+                            id: document.getUUID(),
                             manifest: widget.manifest,
                           ),
                         );

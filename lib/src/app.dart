@@ -1,4 +1,3 @@
-import 'package:catorganizer/src/views/document/document_new_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -10,6 +9,7 @@ import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/views/category/category_grid_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
 import 'package:catorganizer/src/views/category/category_detail_view.dart';
+import 'package:catorganizer/src/views/document/document_new_view.dart';
 import 'package:catorganizer/src/views/document/document_list_view.dart';
 import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
@@ -25,8 +25,6 @@ class Catorganizer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Glue the SettingsController to the MaterialApp.
-    //
     // The AnimatedBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     return AnimatedBuilder(

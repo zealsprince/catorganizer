@@ -10,38 +10,75 @@ import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
 import 'package:catorganizer/src/models/tag.dart';
 
-class ManifestDataModel {
-  final Map<String, CategoryModel> categories = {};
-  final Map<String, DocumentModel> documents = <String, DocumentModel>{};
-}
-
 class ManifestModel extends ChangeNotifier {
   final Map<String, CategoryModel> _categories = {};
   final Map<String, DocumentModel> _documents = <String, DocumentModel>{};
 
-  Future<void> readManifest() async {
-    final directory = Directory.current.path; // Get the current execution path.
+  // Store possible read errors in here to relay back to the application.
+  String error = "";
 
-    ManifestDataModel data = ManifestDataModel(); // Create a sanitized model.
+  Future<void> readManifest() async {
+    error = ""; // Reset our error in case a reload happens.
+
+    final directory = Directory.current.path; // Get the current execution path.
 
     File configurationFile =
         File(path.join(directory, constants.manifestFileName));
 
+    bool exists = false;
+    String data = "";
     if (await configurationFile.exists()) {
-      // Read the configuration file.
-      String contents = await configurationFile.readAsString();
+      data = await configurationFile.readAsString();
+      if (data != "") {
+        exists = true;
+      }
+    }
 
-      data = jsonDecode(contents)
-          as ManifestDataModel; // Attempt to read as our sanitized Manifest data model.
+    // Make sure that our file exists and has content.
+    if (exists) {
+      try {
+        // Read the configuration file and contents as JSON into a dynamic string Map.
+        Map<String, dynamic> contents = jsonDecode(data);
 
-      _categories.addAll(data.categories);
-      _documents.addAll(data.documents);
+        // Handle categories.
+        if (contents["categories"]) {
+          Map<String, dynamic> categories =
+              contents["categories"] as Map<String, dynamic>;
+
+          // We can now let the categories deserialize themselves.
+          for (Map<String, dynamic> json in categories.values) {
+            CategoryModel category = CategoryModel.fromJson(json);
+
+            // Insert the category by its ID.
+            _categories[category.id] = category;
+          }
+        }
+
+        // Handle documents.
+        if (contents["documents"]) {
+          Map<String, dynamic> documents =
+              contents["documents"] as Map<String, dynamic>;
+
+          // We can now let the categories deserialize themselves.
+          for (Map<String, dynamic> json in documents.values) {
+            DocumentModel document = DocumentModel.fromJson(json);
+
+            // Insert the category by its UUID.
+            _documents[document.getUUID()] = document;
+          }
+        }
+      } catch (e) {
+        error = e.toString();
+      }
     } else {
       // Create the configuration file.
       configurationFile.create();
 
       // Write the empty sanitized data model.
-      configurationFile.writeAsString(json.encode(data));
+      configurationFile.writeAsString(json.encode({
+        "categories": {},
+        "documents": {},
+      }));
     }
 
     notifyListeners();
@@ -146,7 +183,7 @@ class ManifestModel extends ChangeNotifier {
   }
 
   Future<void> setDocument(DocumentModel document) async {
-    _documents[document.uuid] = document;
+    _documents[document.getUUID()] = document;
 
     document.category.assignDocument(document);
 
@@ -154,7 +191,7 @@ class ManifestModel extends ChangeNotifier {
   }
 
   Future<void> deleteDocument(DocumentModel document) async {
-    _documents.remove(document.uuid);
+    _documents.remove(document.getUUID());
 
     document.category.removeDocument(document);
 

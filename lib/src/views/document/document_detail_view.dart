@@ -51,7 +51,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                       context,
                       DocumentEditView.routeName,
                       arguments: DocumentEditViewArguments(
-                        id: document.uuid,
+                        id: document.getUUID(),
                         manifest: widget.arguments.manifest,
                       ),
                     )),
@@ -171,7 +171,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               //         child: Padding(
               //           padding: const EdgeInsets.only(left: 8),
               //           child: Text(
-              //             document.uuid,
+              //             document.getUUID(),
               //             overflow: TextOverflow.ellipsis,
               //           ),
               //         ),
