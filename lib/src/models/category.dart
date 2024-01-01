@@ -49,15 +49,15 @@ class CategoryModel {
     title = json['title'] as String;
     description = json['description'] as String;
 
-    color = json['color']
+    color = json.containsKey('color')
         ? Color(
             json['color'] as int,
           )
         : constants.defaultColor;
 
-    icon = json['icon']
+    icon = json.containsKey('icon')
         ? Icon(
-            IconData(json['icon'] as int),
+            IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
           )
         : constants.defaultIcon;
   }

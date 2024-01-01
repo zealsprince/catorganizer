@@ -84,8 +84,16 @@ class _CategoryGridViewState extends State<CategoryGridView> {
             return Callout(
               type: CalloutType.error,
               message:
-                  "It appears there's an issue with loading the application manifest",
+                  "There was an issue with loading the application manifest",
               detail: widget.manifest.error,
+            );
+          }
+
+          if (widget.manifest.getCategories().isEmpty) {
+            return const Callout(
+              type: CalloutType.info,
+              message:
+                  "Looks like no categories have been defined in the application manifest\n\nPlease configure the manifest and then relaunch the application",
             );
           }
 

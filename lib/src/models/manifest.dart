@@ -41,9 +41,9 @@ class ManifestModel extends ChangeNotifier {
         Map<String, dynamic> contents = jsonDecode(data);
 
         // Handle categories.
-        if (contents["categories"]) {
+        if (contents.containsKey('categories')) {
           Map<String, dynamic> categories =
-              contents["categories"] as Map<String, dynamic>;
+              contents['categories'] as Map<String, dynamic>;
 
           // We can now let the categories deserialize themselves.
           for (Map<String, dynamic> json in categories.values) {
@@ -55,9 +55,9 @@ class ManifestModel extends ChangeNotifier {
         }
 
         // Handle documents.
-        if (contents["documents"]) {
+        if (contents.containsKey('documents')) {
           Map<String, dynamic> documents =
-              contents["documents"] as Map<String, dynamic>;
+              contents['documents'] as Map<String, dynamic>;
 
           // We can now let the categories deserialize themselves.
           for (Map<String, dynamic> json in documents.values) {
@@ -67,18 +67,26 @@ class ManifestModel extends ChangeNotifier {
             _documents[document.getUUID()] = document;
           }
         }
-      } catch (e) {
-        error = e.toString();
+      } catch (e, s) {
+        error = 'Error: ${e.toString()}\n\nStack Trace:\n${s.toString()}';
       }
     } else {
       // Create the configuration file.
       configurationFile.create();
 
-      // Write the empty sanitized data model.
-      configurationFile.writeAsString(json.encode({
-        "categories": {},
+      JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+
+      // Write the empty sanitized data model with the default category.
+      configurationFile.writeAsString(encoder.convert({
+        "categories": {
+          CategoryModel.uncategorizedIdentifier: CategoryModel.uncategorized()
+        },
         "documents": {},
       }));
+
+      // Assign the default category as otherwise non are present.
+      _categories[CategoryModel.uncategorizedIdentifier] =
+          CategoryModel.uncategorized();
     }
 
     notifyListeners();

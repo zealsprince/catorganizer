@@ -10,9 +10,6 @@ import 'package:catorganizer/src/models/tag.dart';
 
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
-import 'package:catorganizer/src/views/document/document_list_view.dart';
-import 'package:catorganizer/src/views/document/document_in_category_list_view.dart';
-
 class DocumentNewViewArguments {
   final ManifestModel manifest;
   final XFile file;
@@ -110,41 +107,6 @@ class _DocumentNewViewState extends State<DocumentNewView> {
     Navigator.pop(context);
   }
 
-  // Delete this document with a confirmation dialog and routes pop.
-  void delete(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: const Text('Please Confirm'),
-          content: const Text('Are you sure you want to delete this document?'),
-          actions: [
-            // The "Yes" button
-            TextButton(
-                onPressed: () {
-                  widget.arguments.manifest.deleteDocument(document);
-
-                  Navigator.popUntil(
-                    context,
-                    (route) =>
-                        route.settings.name == DocumentListView.routeName ||
-                        route.settings.name ==
-                            DocumentInCategoryListView.routeName,
-                  );
-                },
-                child: const Text('Yes')),
-            TextButton(
-                onPressed: () {
-                  // Close the dialog
-                  Navigator.of(context).pop();
-                },
-                child: const Text('No'))
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Make sure to build the widget from the supplied file.
@@ -163,13 +125,19 @@ class _DocumentNewViewState extends State<DocumentNewView> {
 
     titleController.text = document.title;
 
-    // Construct the category dropdown menu items.
-    List<DropdownMenuItem<CategoryModel>> categoryMenuItems = [];
-    for (CategoryModel category in widget.arguments.manifest
+    // Create a list from the available categories.
+    List<CategoryModel> categories = widget.arguments.manifest
         .getCategories()
         .entries
         .map((category) => category.value)
-        .toList()) {
+        .toList();
+
+    // Make sure to assign the document to a category at instantiation.
+    document.category = categories[0];
+
+    // Construct the category dropdown menu items.
+    List<DropdownMenuItem<CategoryModel>> categoryMenuItems = [];
+    for (CategoryModel category in categories) {
       categoryMenuItems.add(DropdownMenuItem(
         value: category,
         child: Row(
@@ -296,7 +264,7 @@ class _DocumentNewViewState extends State<DocumentNewView> {
             child: DropdownButton<CategoryModel>(
               alignment: Alignment.topLeft,
               isExpanded: true,
-              value: widget.arguments.category,
+              value: widget.arguments.category ?? categories[0],
               onChanged: (category) => changeCategory(category!),
               items: categoryMenuItems,
             ),
@@ -464,8 +432,8 @@ class _DocumentNewViewState extends State<DocumentNewView> {
                       const Color(0x44FF0000),
                     ),
                   ),
-                  onPressed: () => delete(context),
-                  child: const Text("Delete Document"),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
                 ),
               ],
             ),
