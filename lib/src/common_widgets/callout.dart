@@ -115,24 +115,30 @@ class Callout extends StatelessWidget {
       );
     }
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 540,
-          maxHeight: 640,
-          maxWidth: 540,
-        ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: color.withAlpha(0x22),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(16),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: 540,
+              maxHeight: 640,
+              maxWidth: 540,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color.withAlpha(0x22),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(16),
+                ),
+              ),
+              child: Column(
+                  mainAxisSize: MainAxisSize.min, children: contentChildren),
             ),
           ),
-          child:
-              Column(mainAxisSize: MainAxisSize.min, children: contentChildren),
-        ),
-      ),
+        )
+      ],
     );
   }
 }

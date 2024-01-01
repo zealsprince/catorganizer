@@ -22,13 +22,12 @@ class ManifestModel extends ChangeNotifier {
 
     final directory = Directory.current.path; // Get the current execution path.
 
-    File configurationFile =
-        File(path.join(directory, constants.manifestFileName));
+    File manifestFile = File(path.join(directory, constants.manifestFileName));
 
     bool exists = false;
     String data = "";
-    if (await configurationFile.exists()) {
-      data = await configurationFile.readAsString();
+    if (await manifestFile.exists()) {
+      data = await manifestFile.readAsString();
       if (data != "") {
         exists = true;
       }
@@ -46,8 +45,9 @@ class ManifestModel extends ChangeNotifier {
               contents['categories'] as Map<String, dynamic>;
 
           // We can now let the categories deserialize themselves.
-          for (Map<String, dynamic> json in categories.values) {
-            CategoryModel category = CategoryModel.fromJson(json);
+          for (String key in categories.keys) {
+            CategoryModel category =
+                CategoryModel.fromJson(key, categories[key]);
 
             // Insert the category by its ID.
             _categories[category.id] = category;
@@ -60,11 +60,29 @@ class ManifestModel extends ChangeNotifier {
               contents['documents'] as Map<String, dynamic>;
 
           // We can now let the categories deserialize themselves.
-          for (Map<String, dynamic> json in documents.values) {
-            DocumentModel document = DocumentModel.fromJson(json);
+          for (String key in documents.keys) {
+            DocumentModel document =
+                DocumentModel.fromJson(key, documents[key]);
 
             // Insert the category by its UUID.
             _documents[document.getUUID()] = document;
+
+            // Assign the document to its category if it exists.
+            CategoryModel? category = getCategory(document.category);
+
+            // Make sure we can and have found the category the document specifies.
+            if (category != null) {
+              category.assignDocument(document); // If so, assign.
+            } else {
+              // If not, check if we have the default category. If not, create it.
+              if (getCategory(CategoryModel.uncategorizedIdentifier) == null) {
+                setCategory(CategoryModel.uncategorized());
+              }
+
+              // We can be sure it exists now. Assign the document.
+              getCategory(CategoryModel.uncategorizedIdentifier)!
+                  .assignDocument(document);
+            }
           }
         }
       } catch (e, s) {
@@ -72,12 +90,12 @@ class ManifestModel extends ChangeNotifier {
       }
     } else {
       // Create the configuration file.
-      configurationFile.create();
+      manifestFile.create();
 
       JsonEncoder encoder = const JsonEncoder.withIndent('  ');
 
       // Write the empty sanitized data model with the default category.
-      configurationFile.writeAsString(encoder.convert({
+      manifestFile.writeAsString(encoder.convert({
         "categories": {
           CategoryModel.uncategorizedIdentifier: CategoryModel.uncategorized()
         },
@@ -93,6 +111,29 @@ class ManifestModel extends ChangeNotifier {
   }
 
   Future<bool> writeManifest() async {
+    error = ""; // Reset our error in case a reload happens.
+
+    final directory = Directory.current.path; // Get the current execution path.
+
+    File manifestFile = File(path.join(directory, constants.manifestFileName));
+
+    // If for some reason the manifest file doesn't exist, create it again.
+    if (!await manifestFile.exists()) {
+      manifestFile.create();
+    }
+
+    try {
+      JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+
+      // Write the current state to the manifest file.
+      manifestFile.writeAsString(encoder.convert({
+        "categories": _categories,
+        "documents": _documents,
+      }));
+    } catch (e, s) {
+      error = 'Error: ${e.toString()}\n\nStack Trace:\n${s.toString()}';
+    }
+
     notifyListeners();
 
     return true;
@@ -109,24 +150,24 @@ class ManifestModel extends ChangeNotifier {
     _categories[CategoryModel.uncategorizedIdentifier] = defaultCategory;
 
     setDocument(DocumentModel(
+      defaultCategory.id,
       "/testA.pdf",
       "Test A Document",
       <TagModel>[const TagModel("shared")],
-      defaultCategory,
     ));
 
     setDocument(DocumentModel(
+      defaultCategory.id,
       "/testB.pdf",
       "Test B Document",
       <TagModel>[const TagModel("shared"), const TagModel("unique")],
-      defaultCategory,
     ));
 
     setDocument(DocumentModel(
+      defaultCategory.id,
       "/testC.pdf",
       "Test C Document",
       <TagModel>[],
-      defaultCategory,
     ));
 
     for (final key in _documents.keys) {
@@ -136,8 +177,6 @@ class ManifestModel extends ChangeNotifier {
       // Sub-par testing implementation...
       _categories[CategoryModel.uncategorizedIdentifier]!
           .assignDocument(document);
-      document
-          .assignCategory(_categories[CategoryModel.uncategorizedIdentifier]!);
     }
   }
 
@@ -156,9 +195,6 @@ class ManifestModel extends ChangeNotifier {
       // Sub-par testing implementation...
       _categories[CategoryModel.uncategorizedIdentifier]!
           .assignDocument(document);
-
-      document
-          .assignCategory(_categories[CategoryModel.uncategorizedIdentifier]!);
     }
   }
 
@@ -193,7 +229,20 @@ class ManifestModel extends ChangeNotifier {
   Future<void> setDocument(DocumentModel document) async {
     _documents[document.getUUID()] = document;
 
-    document.category.assignDocument(document);
+    // Make sure we can and have found the category the document specifies.
+    CategoryModel? category = getCategory(document.category);
+    if (category != null) {
+      category.assignDocument(document); // If so, assign.
+    } else {
+      // If not, check if we have the default category. If not, create it.
+      if (getCategory(CategoryModel.uncategorizedIdentifier) == null) {
+        setCategory(CategoryModel.uncategorized());
+      }
+
+      // We can be sure it exists now. Assign the document.
+      getCategory(CategoryModel.uncategorizedIdentifier)!
+          .assignDocument(document);
+    }
 
     await writeManifest();
   }
@@ -201,7 +250,11 @@ class ManifestModel extends ChangeNotifier {
   Future<void> deleteDocument(DocumentModel document) async {
     _documents.remove(document.getUUID());
 
-    document.category.removeDocument(document);
+    // Make sure we can and have found the category the document specifies.
+    CategoryModel? category = getCategory(document.category);
+    if (category != null) {
+      category.unassignDocument(document); // If so, unassign.
+    }
 
     await writeManifest();
   }

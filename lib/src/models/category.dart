@@ -8,7 +8,9 @@ class CategoryModel {
   static const String uncategorizedIdentifier = "uncategorized";
   static const String uncategorizedTitle = "Uncategorized";
 
+  // ID should definitely be immutable... still need to do that.
   String id = uncategorizedIdentifier;
+
   String title = "";
   String description = "";
   Color color = constants.defaultColor;
@@ -44,8 +46,7 @@ class CategoryModel {
           icon: constants.defaultIcon,
         );
 
-  CategoryModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'] as String;
+  CategoryModel.fromJson(this.id, Map<String, dynamic> json) {
     title = json['title'] as String;
     description = json['description'] as String;
 
@@ -64,7 +65,6 @@ class CategoryModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'title': title,
       'description': description,
       'color': color.value,
@@ -84,7 +84,7 @@ class CategoryModel {
     _documents[document.getUUID()] = document;
   }
 
-  void removeDocument(DocumentModel document) {
+  void unassignDocument(DocumentModel document) {
     _documents.remove(document.getUUID());
   }
 }

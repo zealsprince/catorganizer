@@ -6,6 +6,7 @@ import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
 import 'package:catorganizer/src/models/manifest.dart';
 
+import 'package:catorganizer/src/common_widgets/callout.dart';
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -40,8 +41,6 @@ class DocumentInCategoryListView extends StatefulWidget {
 /// Displays a list of documents.
 class _DocumentInCategoryListViewState
     extends State<DocumentInCategoryListView> {
-  void addDocument() {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +76,13 @@ class _DocumentInCategoryListViewState
               .map((document) => document.value)
               .toList();
 
+          if (documents.isEmpty) {
+            return const Callout(
+              type: CalloutType.info,
+              message: "Looks like there are no documents - why not add one!",
+            );
+          }
+
           return ListView.builder(
             restorationId: 'DocumentInCategoryListView',
             itemCount: documents.length,
@@ -104,7 +110,7 @@ class _DocumentInCategoryListViewState
                                   .toList(),
                             ),
                       leading: MarkedIcon(
-                        color: document.category.color,
+                        color: widget.arguments.category.color,
                         icon: const Icon(Icons.article_rounded),
                       ),
                       trailing: IconButton(

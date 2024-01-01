@@ -5,6 +5,7 @@ import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
+import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
 
 import 'package:catorganizer/src/views/document/document_edit_view.dart';
@@ -42,6 +43,13 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
             (widget.arguments.manifest.getDocument(widget.arguments.id) != null)
                 ? widget.arguments.manifest.getDocument(widget.arguments.id)!
                 : DocumentModel.empty();
+
+        // Fetch the document's category so we can display its information.
+        CategoryModel? category =
+            widget.arguments.manifest.getCategory(document.category);
+
+        // If the category for some reason is unvailable fall back to the default.
+        category ??= CategoryModel.uncategorized();
 
         return Scaffold(
           appBar: AppBar(title: Text(document.title), actions: [
@@ -110,14 +118,14 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                 child: Row(
                   children: [
                     MarkedIcon(
-                      color: document.category.color,
-                      icon: document.category.icon,
+                      color: category.color,
+                      icon: category.icon,
                     ),
                     Flexible(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: Text(
-                          document.category.title,
+                          category.title,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

@@ -3,4 +3,8 @@ class TagModel {
   final String value;
 
   const TagModel(this.value);
+
+  String toJson() {
+    return value;
+  }
 }

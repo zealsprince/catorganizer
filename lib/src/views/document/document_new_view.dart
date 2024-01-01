@@ -22,21 +22,40 @@ class DocumentNewViewArguments {
   });
 }
 
+// Custom class to handle the dropdown button list changes.
+final class _DocumentNewViewCategoryController extends ChangeNotifier {
+  CategoryModel _category = CategoryModel.uncategorized();
+
+  setCategory(CategoryModel category) {
+    _category = category;
+
+    notifyListeners();
+  }
+
+  CategoryModel getCategory() {
+    return _category;
+  }
+}
+
 // This custom class handles the tag adding / removing dialog as we don't want
 // to bind directly to the document as this would manipulate it before
 // performing the save action.
 final class _DocumentNewViewTagsController extends ChangeNotifier {
-  List<TagModel> tags = [];
+  final List<TagModel> _tags = [];
+
+  List<TagModel> getTags() {
+    return _tags;
+  }
 
   // Return a boolean to confirm if a tag was added without duplication.
   bool addTag(TagModel tag) {
-    for (TagModel existingTag in tags) {
+    for (TagModel existingTag in _tags) {
       if (existingTag.value == tag.value) {
         return false;
       }
     }
 
-    tags.add(tag);
+    _tags.add(tag);
 
     notifyListeners();
 
@@ -45,9 +64,9 @@ final class _DocumentNewViewTagsController extends ChangeNotifier {
 
   // Return a boolean to confirm if a tag was removed.
   bool removeTag(TagModel tag) {
-    for (int i = 0; i < tags.length; i++) {
-      if (tags[i].value == tag.value) {
-        tags.removeAt(i);
+    for (int i = 0; i < _tags.length; i++) {
+      if (_tags[i].value == tag.value) {
+        _tags.removeAt(i);
 
         notifyListeners();
 
@@ -76,6 +95,10 @@ class _DocumentNewViewState extends State<DocumentNewView> {
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController tagCreateController = TextEditingController();
+
+  final _DocumentNewViewCategoryController categoryController =
+      _DocumentNewViewCategoryController();
+
   final SingleValueDropDownController tagDropdownController =
       SingleValueDropDownController();
 
@@ -83,7 +106,7 @@ class _DocumentNewViewState extends State<DocumentNewView> {
       _DocumentNewViewTagsController();
 
   void changeCategory(CategoryModel category) {
-    document.category = category;
+    categoryController.setCategory(category);
   }
 
   // We have to mask our tag controller function here to additionally get access
@@ -99,8 +122,19 @@ class _DocumentNewViewState extends State<DocumentNewView> {
   // Modify our document and then update the manifest to propgate changes
   // across other views. Additionally flag writing of changes.
   void save(BuildContext context) {
+    // FIXME: The manifest architecture should be rewritten to perform this step...
+    CategoryModel category =
+        widget.arguments.manifest.getCategory(document.category)!;
+
+    // Make sure we remove the document from the old category.
+    category.unassignDocument(document);
+
+    // Re-assign to the new category.
+    document.category = categoryController.getCategory().id;
+    categoryController.getCategory().assignDocument(document);
+
     document.title = titleController.text;
-    document.setTags(tagsController.tags);
+    document.setTags(tagsController.getTags());
 
     widget.arguments.manifest.setDocument(document);
 
@@ -133,7 +167,10 @@ class _DocumentNewViewState extends State<DocumentNewView> {
         .toList();
 
     // Make sure to assign the document to a category at instantiation.
-    document.category = categories[0];
+    document.category = categories[0].id;
+
+    // Make sure to also inform the category controller to avoid mismatches.
+    categoryController.setCategory(categories[0]);
 
     // Construct the category dropdown menu items.
     List<DropdownMenuItem<CategoryModel>> categoryMenuItems = [];
@@ -143,12 +180,12 @@ class _DocumentNewViewState extends State<DocumentNewView> {
         child: Row(
           children: [
             MarkedIcon(
-              color: document.category.color,
-              icon: document.category.icon,
+              color: category.color,
+              icon: category.icon,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: Text(document.category.title),
+              child: Text(category.title),
             ),
           ],
         ),
@@ -260,15 +297,19 @@ class _DocumentNewViewState extends State<DocumentNewView> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
-            child: DropdownButton<CategoryModel>(
-              alignment: Alignment.topLeft,
-              isExpanded: true,
-              value: widget.arguments.category ?? categories[0],
-              onChanged: (category) => changeCategory(category!),
-              items: categoryMenuItems,
-            ),
-          ),
+              padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
+              child: ListenableBuilder(
+                listenable: categoryController,
+                builder: (context, Widget? child) {
+                  return DropdownButton<CategoryModel>(
+                    alignment: Alignment.topLeft,
+                    isExpanded: true,
+                    value: categoryController.getCategory(),
+                    onChanged: (category) => changeCategory(category!),
+                    items: categoryMenuItems,
+                  );
+                },
+              )),
           const Divider(),
           // ----------------------------- Tags ----------------------------
           const Padding(
@@ -292,7 +333,7 @@ class _DocumentNewViewState extends State<DocumentNewView> {
                   List<Widget> tagItems = []; // Prepare our children list.
 
                   // Iterate over values and build out the tag widgets accordingly.
-                  for (TagModel tag in tagsController.tags) {
+                  for (TagModel tag in tagsController.getTags()) {
                     tagItems.add(
                       Padding(
                         padding: const EdgeInsets.only(right: 4, bottom: 8),

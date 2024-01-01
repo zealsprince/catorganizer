@@ -4,8 +4,10 @@ import 'package:open_app_file/open_app_file.dart';
 
 import 'package:catorganizer/src/models/manifest.dart';
 
+import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
 
+import 'package:catorganizer/src/common_widgets/callout.dart';
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
@@ -87,11 +89,25 @@ class _DocumentListViewState extends State<DocumentListView> {
               .map((document) => document.value)
               .toList();
 
+          if (documents.isEmpty) {
+            return const Callout(
+              type: CalloutType.info,
+              message: "Looks like there are no documents - why not add one!",
+            );
+          }
+
           return ListView.builder(
             restorationId: 'DocumentListView',
             itemCount: widget.manifest.getDocuments().length,
             itemBuilder: (BuildContext context, int index) {
               final document = documents[index];
+
+              // Fetch the document's category so we can display its information.
+              CategoryModel? category =
+                  widget.manifest.getCategory(document.category);
+
+              // If the category for some reason is unvailable fall back to the default.
+              category ??= CategoryModel.uncategorized();
 
               return ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 68, maxHeight: 68),
@@ -114,7 +130,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                   .toList(),
                             ),
                       leading: MarkedIcon(
-                        color: document.category.color,
+                        color: category.color,
                         icon: const Icon(Icons.article_rounded),
                       ),
                       trailing: IconButton(
