@@ -15,7 +15,7 @@ import 'package:catorganizer/src/views/document/document_in_category_list_view.d
 import 'package:catorganizer/src/views/document/document_detail_view.dart';
 import 'package:catorganizer/src/views/document/document_edit_view.dart';
 
-/// The Widget that configures your application.
+// The Widget that configures your application.
 class Catorganizer extends StatelessWidget {
   const Catorganizer(
       {super.key, required this.settingsController, required this.manifest});

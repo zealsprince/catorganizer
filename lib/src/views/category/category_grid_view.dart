@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cool_alert/cool_alert.dart';
 import 'package:file_selector/file_selector.dart';
 
 import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/manifest.dart';
+
+import 'package:catorganizer/src/common_widgets/callout.dart';
 
 import 'package:catorganizer/src/views/settings/settings_view.dart';
 import 'package:catorganizer/src/views/category/category_list_view.dart';
@@ -80,8 +81,11 @@ class _CategoryGridViewState extends State<CategoryGridView> {
         listenable: widget.manifest,
         builder: (context, Widget? child) {
           if (widget.manifest.error != "") {
-            return Center(
-              child: Text("That's not good: ${widget.manifest.error}"),
+            return Callout(
+              type: CalloutType.error,
+              message:
+                  "It appears there's an issue with loading the application manifest",
+              detail: widget.manifest.error,
             );
           }
 

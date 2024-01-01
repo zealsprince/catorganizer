@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 
+import 'package:catorganizer/src/common_widgets/callout.dart';
 import 'package:catorganizer/src/common_widgets/marked_icon.dart';
 
 import 'package:catorganizer/src/models/category.dart';
@@ -87,6 +88,15 @@ class _CategoryListViewState extends State<CategoryListView> {
       body: ListenableBuilder(
         listenable: widget.manifest,
         builder: (context, Widget? child) {
+          if (widget.manifest.error != "") {
+            return Callout(
+              type: CalloutType.error,
+              message:
+                  "It appears there's an issue with loading the application manifest",
+              detail: widget.manifest.error,
+            );
+          }
+
           List<CategoryModel> categoriesList = widget.manifest
               .getCategories()
               .entries
