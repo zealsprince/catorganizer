@@ -6,6 +6,7 @@ import 'package:catorganizer/src/models/manifest.dart';
 
 import 'package:catorganizer/src/models/category.dart';
 import 'package:catorganizer/src/models/document.dart';
+import 'package:catorganizer/src/models/tag.dart';
 
 import 'package:catorganizer/src/common_widgets/callout.dart';
 import 'package:catorganizer/src/common_widgets/tag_row.dart';
@@ -30,6 +31,10 @@ class DocumentListView extends StatefulWidget {
 
 /// Displays a list of documents.
 class _DocumentListViewState extends State<DocumentListView> {
+  final TextEditingController searchController = TextEditingController();
+
+  search(String text) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +59,6 @@ class _DocumentListViewState extends State<DocumentListView> {
             },
           ),
         ],
-        // Search bar
         title: Container(
           width: double.infinity,
           height: 40,
@@ -62,7 +66,10 @@ class _DocumentListViewState extends State<DocumentListView> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(5),
           ),
+          // -------------------------- Search bar --------------------------
           child: TextField(
+            controller: searchController,
+            onChanged: search,
             textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
@@ -80,7 +87,7 @@ class _DocumentListViewState extends State<DocumentListView> {
         ),
       ),
       body: ListenableBuilder(
-        listenable: widget.manifest,
+        listenable: Listenable.merge([widget.manifest, searchController]),
         builder: (context, Widget? child) {
           // We'll want to organize our documents here for easier handling.
           List<DocumentModel> documents = widget.manifest
@@ -96,11 +103,53 @@ class _DocumentListViewState extends State<DocumentListView> {
             );
           }
 
+          String searchQuery = searchController.text.toLowerCase();
+          bool isTagQuery = searchQuery.startsWith('#');
+
+          if (isTagQuery) {
+            // Remove the tag symbol to not break searches.
+            searchQuery = searchQuery.substring(1);
+          }
+
+          // Let's create a new list containing only our filtered documents.
+          List<DocumentModel> filteredDocuments = [];
+          for (DocumentModel document in documents) {
+            if (!isTagQuery) {
+              if (document.title.toLowerCase().contains(searchQuery)) {
+                filteredDocuments.add(document);
+                continue;
+              }
+            }
+
+            for (TagModel tag in document.getTags()) {
+              if (tag.value.toLowerCase().contains(searchQuery)) {
+                filteredDocuments.add(document);
+                break;
+              }
+            }
+          }
+
+          if (filteredDocuments.isEmpty) {
+            return const Callout(
+              type: CalloutType.custom,
+              message: "No results found!",
+              customHeader: "Search",
+              customIcon: Icons.search,
+            );
+          }
+
+          if (documents.isEmpty) {
+            return const Callout(
+              type: CalloutType.info,
+              message: "Looks like there are no documents - why not add one!",
+            );
+          }
+
           return ListView.builder(
             restorationId: 'DocumentListView',
-            itemCount: widget.manifest.getDocuments().length,
+            itemCount: filteredDocuments.length,
             itemBuilder: (BuildContext context, int index) {
-              final document = documents[index];
+              final document = filteredDocuments[index];
 
               // Fetch the document's category so we can display its information.
               CategoryModel? category =
