@@ -12,14 +12,14 @@ The application uses [Flutter](https://flutter.dev/) as its UI framework and as 
 
 To build the application you will need both to be installed on your local system. After which you will need to install the project dependencies by running the following command in the project's root directory.
 
-  $ flutter pub get
+    $ flutter pub get
 
 From there, you can build the application.
 
-  $ flutter build [windows|macos|linux]
+    $ flutter build [windows|macos|linux]
 
 ## Development ##
 
 To run the application locally from source you can run the follow command. Make sure you have installed dependencies beforehand though, just like with the build process.
 
-  $ flutter run
+    $ flutter run
